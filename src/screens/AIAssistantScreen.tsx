@@ -12,6 +12,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Badge, Card, ScreenHeader } from '../components';
 import { colors } from '../constants';
+import { useNavigation } from '../navigation';
 
 interface AIMessage {
   id: string;
@@ -40,6 +41,7 @@ const INITIAL_MESSAGES: AIMessage[] = [
 
 export const AIAssistantScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
+  const { navigate } = useNavigation();
   const scrollViewRef = useRef<React.ElementRef<typeof ScrollView>>(null);
 
   const [messages, setMessages] = useState<AIMessage[]>(INITIAL_MESSAGES);
@@ -214,14 +216,50 @@ export const AIAssistantScreen: React.FC = () => {
                     {msg.text}
                   </Text>
 
-                  {/* Highlights pills */}
+                  {/* Highlights pills with smart navigation */}
                   {msg.highlights && msg.highlights.length > 0 && (
                     <View style={styles.highlightsContainer}>
-                      {msg.highlights.map(h => (
-                        <View key={h} style={styles.highlightPill}>
-                          <Text style={styles.highlightText}>{h}</Text>
-                        </View>
-                      ))}
+                      {msg.highlights.map(h => {
+                        let action: (() => void) | null = null;
+                        if (
+                          h.toLowerCase().includes('project') ||
+                          h.toLowerCase().includes('deadline')
+                        ) {
+                          action = () => navigate('Projects');
+                        } else if (
+                          h.toLowerCase().includes('velocity') ||
+                          h.toLowerCase().includes('revenue') ||
+                          h.toLowerCase().includes('complete')
+                        ) {
+                          action = () => navigate('Analytics');
+                        } else if (
+                          h.toLowerCase().includes('online') ||
+                          h.toLowerCase().includes('collaborat')
+                        ) {
+                          action = () => navigate('Messages');
+                        }
+
+                        if (action) {
+                          return (
+                            <TouchableOpacity
+                              key={h}
+                              style={styles.highlightPillActive}
+                              onPress={action}
+                              activeOpacity={0.7}
+                            >
+                              <Text style={styles.highlightTextActive}>
+                                {h} ›
+                              </Text>
+                            </TouchableOpacity>
+                          );
+                        }
+
+                        return (
+                          <View key={h} style={styles.highlightPill}>
+                            <Text style={styles.highlightText}>{h}</Text>
+                          </View>
+                        );
+                      })}
                     </View>
                   )}
 
@@ -419,10 +457,23 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     borderRadius: 8,
   },
+  highlightPillActive: {
+    backgroundColor: '#EEF2FF',
+    borderWidth: 1,
+    borderColor: '#C7D2FE',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
   highlightText: {
     fontSize: 11,
     fontWeight: '700',
     color: colors.primary,
+  },
+  highlightTextActive: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#4F46E5',
   },
   timeText: {
     fontSize: 10,

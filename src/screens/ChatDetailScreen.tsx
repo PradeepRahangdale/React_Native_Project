@@ -96,7 +96,7 @@ const BOT_REPLIES = [
 
 export const ChatDetailScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
-  const { params, goBack } = useNavigation();
+  const { params, goBack, navigate } = useNavigation();
   const scrollViewRef = useRef<React.ElementRef<typeof ScrollView>>(null);
 
   const contactId = params?.id || '1';
@@ -200,8 +200,12 @@ export const ChatDetailScreen: React.FC = () => {
           <Text style={styles.backChevron}>‹</Text>
         </TouchableOpacity>
 
-        {/* Contact info */}
-        <View style={styles.contactContainer}>
+        {/* Contact info (tap to view profile) */}
+        <TouchableOpacity
+          style={styles.contactContainer}
+          activeOpacity={0.8}
+          onPress={() => navigate('Profile')}
+        >
           <View style={styles.avatarBox}>
             <View style={styles.avatar}>
               <Text style={styles.avatarText}>{contactAvatar}</Text>
@@ -214,14 +218,22 @@ export const ChatDetailScreen: React.FC = () => {
               {isTyping ? 'typing...' : isOnline ? 'Online now' : 'Offline'}
             </Text>
           </View>
-        </View>
+        </TouchableOpacity>
 
         {/* Quick Header Actions */}
         <View style={styles.headerActions}>
-          <TouchableOpacity style={styles.actionBtn} activeOpacity={0.7}>
-            <Text style={styles.actionIcon}>📞</Text>
+          <TouchableOpacity
+            style={styles.actionBtn}
+            activeOpacity={0.7}
+            onPress={() => navigate('Projects')}
+          >
+            <Text style={styles.actionIcon}>📁</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionBtn} activeOpacity={0.7}>
+          <TouchableOpacity
+            style={styles.actionBtn}
+            activeOpacity={0.7}
+            onPress={() => navigate('Profile')}
+          >
             <Text style={styles.actionIcon}>ℹ️</Text>
           </TouchableOpacity>
         </View>

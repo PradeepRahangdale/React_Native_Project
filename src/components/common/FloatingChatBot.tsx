@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../../constants';
+import { useNavigation } from '../../navigation';
 
 interface BotMessage {
   id: string;
@@ -45,6 +46,7 @@ export const FloatingChatBot: React.FC<FloatingChatBotProps> = ({
   visible = true,
 }) => {
   const insets = useSafeAreaInsets();
+  const { navigate } = useNavigation();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<BotMessage[]>(INITIAL_MESSAGES);
   const [inputText, setInputText] = useState('');
@@ -266,14 +268,27 @@ export const FloatingChatBot: React.FC<FloatingChatBotProps> = ({
                 </View>
               </View>
 
-              <TouchableOpacity
-                style={styles.closeBtn}
-                onPress={toggleChat}
-                activeOpacity={0.7}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              >
-                <Text style={styles.closeBtnText}>✕</Text>
-              </TouchableOpacity>
+              <View style={styles.headerRightActions}>
+                <TouchableOpacity
+                  style={styles.expandBtn}
+                  onPress={() => {
+                    toggleChat();
+                    navigate('AIAssistant');
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.expandBtnText}>⤢ Expand</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.closeBtn}
+                  onPress={toggleChat}
+                  activeOpacity={0.7}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                >
+                  <Text style={styles.closeBtnText}>✕</Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
             {/* Messages Scroll Area */}
@@ -317,12 +332,56 @@ export const FloatingChatBot: React.FC<FloatingChatBotProps> = ({
                       {/* Bullets if any */}
                       {msg.bullets && msg.bullets.length > 0 && (
                         <View style={styles.bulletsBox}>
-                          {msg.bullets.map((b, i) => (
-                            <View key={i} style={styles.bulletItem}>
-                              <Text style={styles.bulletDot}>•</Text>
-                              <Text style={styles.bulletText}>{b}</Text>
-                            </View>
-                          ))}
+                          {msg.bullets.map((b, i) => {
+                            let action: (() => void) | null = null;
+                            if (
+                              b.toLowerCase().includes('project') ||
+                              b.toLowerCase().includes('task') ||
+                              b.toLowerCase().includes('redesign')
+                            ) {
+                              action = () => {
+                                toggleChat();
+                                navigate('Projects');
+                              };
+                            } else if (
+                              b.toLowerCase().includes('velocity') ||
+                              b.toLowerCase().includes('progress')
+                            ) {
+                              action = () => {
+                                toggleChat();
+                                navigate('Analytics');
+                              };
+                            } else if (
+                              b.toLowerCase().includes('team') ||
+                              b.toLowerCase().includes('online')
+                            ) {
+                              action = () => {
+                                toggleChat();
+                                navigate('Messages');
+                              };
+                            }
+
+                            if (action) {
+                              return (
+                                <TouchableOpacity
+                                  key={i}
+                                  style={styles.bulletItemActive}
+                                  onPress={action}
+                                  activeOpacity={0.7}
+                                >
+                                  <Text style={styles.bulletDotActive}>›</Text>
+                                  <Text style={styles.bulletTextActive}>{b}</Text>
+                                </TouchableOpacity>
+                              );
+                            }
+
+                            return (
+                              <View key={i} style={styles.bulletItem}>
+                                <Text style={styles.bulletDot}>•</Text>
+                                <Text style={styles.bulletText}>{b}</Text>
+                              </View>
+                            );
+                          })}
                         </View>
                       )}
 
@@ -511,6 +570,24 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.primary,
   },
+  headerRightActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  expandBtn: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#C7D2FE',
+  },
+  expandBtnText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#4F46E5',
+  },
   closeBtn: {
     width: 32,
     height: 32,
@@ -590,6 +667,29 @@ const styles = StyleSheet.create({
   bulletItem: {
     flexDirection: 'row',
     alignItems: 'flex-start',
+  },
+  bulletItemActive: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#EEF2FF',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    marginVertical: 2,
+    borderWidth: 1,
+    borderColor: '#C7D2FE',
+  },
+  bulletDotActive: {
+    fontSize: 13,
+    color: '#4F46E5',
+    fontWeight: '800',
+    marginRight: 6,
+  },
+  bulletTextActive: {
+    fontSize: 11,
+    color: '#4F46E5',
+    fontWeight: '700',
+    flex: 1,
   },
   bulletDot: {
     fontSize: 12,

@@ -13,7 +13,7 @@ import { useNavigation } from '../navigation';
 
 export const ProjectDetailScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
-  const { params } = useNavigation();
+  const { params, navigate } = useNavigation();
 
   const title = params?.title || 'Project Overview';
   const subtitle = params?.subtitle || 'Detailed workspace analysis and tasks.';
@@ -85,18 +85,33 @@ export const ProjectDetailScreen: React.FC = () => {
           <Text style={styles.sectionTitle}>Assigned Team</Text>
         </View>
         <Card style={styles.teamCard}>
-          <View style={styles.memberRow}>
+          <TouchableOpacity
+            style={styles.memberRow}
+            activeOpacity={0.7}
+            onPress={() => navigate('Profile')}
+          >
             <View style={styles.memberAvatar}>
               <Text style={styles.memberInitials}>JD</Text>
             </View>
             <View style={styles.memberInfo}>
               <Text style={styles.memberName}>John Doe</Text>
-              <Text style={styles.memberRole}>Lead Engineer</Text>
+              <Text style={styles.memberRole}>Lead Engineer (You)</Text>
             </View>
             <Badge label="Owner" variant="accent" />
-          </View>
+          </TouchableOpacity>
           <View style={styles.divider} />
-          <View style={styles.memberRow}>
+          <TouchableOpacity
+            style={styles.memberRow}
+            activeOpacity={0.7}
+            onPress={() =>
+              navigate('ChatDetail', {
+                id: '1',
+                name: 'Alice Smith',
+                avatar: 'AS',
+                online: true,
+              })
+            }
+          >
             <View style={styles.memberAvatar}>
               <Text style={styles.memberInitials}>AS</Text>
             </View>
@@ -104,8 +119,8 @@ export const ProjectDetailScreen: React.FC = () => {
               <Text style={styles.memberName}>Alice Smith</Text>
               <Text style={styles.memberRole}>UI/UX Designer</Text>
             </View>
-            <Badge label="Active" variant="success" />
-          </View>
+            <Badge label="Chat ›" variant="success" />
+          </TouchableOpacity>
         </Card>
 
         {/* Tasks Checklist */}
@@ -139,6 +154,42 @@ export const ProjectDetailScreen: React.FC = () => {
               </Card>
             </TouchableOpacity>
           ))}
+        </View>
+
+        {/* Project Quick Actions */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Project Workflows</Text>
+        </View>
+        <View style={styles.actionRow}>
+          <TouchableOpacity
+            style={styles.actionCard}
+            activeOpacity={0.8}
+            onPress={() => navigate('Messages')}
+          >
+            <Text style={styles.actionCardIcon}>💬</Text>
+            <Text style={styles.actionCardTitle}>Team Chat</Text>
+            <Text style={styles.actionCardSub}>Open channel ›</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.actionCard}
+            activeOpacity={0.8}
+            onPress={() => navigate('AIAssistant')}
+          >
+            <Text style={styles.actionCardIcon}>✨</Text>
+            <Text style={styles.actionCardTitle}>Nova Copilot</Text>
+            <Text style={styles.actionCardSub}>Plan tasks ›</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.actionCard}
+            activeOpacity={0.8}
+            onPress={() => navigate('Analytics')}
+          >
+            <Text style={styles.actionCardIcon}>📊</Text>
+            <Text style={styles.actionCardTitle}>Analytics</Text>
+            <Text style={styles.actionCardSub}>Velocity ›</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>
@@ -308,5 +359,39 @@ const styles = StyleSheet.create({
   taskNameDone: {
     color: colors.textMuted,
     textDecorationLine: 'line-through',
+  },
+  actionRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 20,
+  },
+  actionCard: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 14,
+    padding: 12,
+    alignItems: 'center',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  actionCardIcon: {
+    fontSize: 20,
+    marginBottom: 6,
+  },
+  actionCardTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: colors.textPrimary,
+    marginBottom: 2,
+  },
+  actionCardSub: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: colors.primary,
   },
 });

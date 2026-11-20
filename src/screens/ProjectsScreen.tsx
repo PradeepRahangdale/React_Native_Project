@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import {
+  Modal,
   Platform,
   ScrollView,
   StatusBar,
@@ -73,13 +74,28 @@ const PROJECTS_DATA: Project[] = [
   },
 ];
 
+const MEMBER_MAP: Record<string, { id: string; name: string; avatar: string; online: boolean }> = {
+  AS: { id: '1', name: 'Alice Smith', avatar: 'AS', online: true },
+  RK: { id: '2', name: 'Robert King', avatar: 'RK', online: true },
+  ML: { id: '3', name: 'Maya Lin', avatar: 'ML', online: false },
+  TN: { id: '4', name: 'Tom Nelson', avatar: 'TN', online: false },
+};
+
 export const ProjectsScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const { navigate } = useNavigation();
+
+  const [projects, setProjects] = useState<Project[]>(PROJECTS_DATA);
   const [search, setSearch] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('All');
 
-  const filteredProjects = PROJECTS_DATA.filter(p => {
+  // Modal State for New Project Creation
+  const [showModal, setShowModal] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
+  const [newCategory, setNewCategory] = useState('Engineering');
+  const [newDesc, setNewDesc] = useState('');
+
+  const filteredProjects = projects.filter(p => {
     const matchesSearch =
       p.title.toLowerCase().includes(search.toLowerCase()) ||
       p.description.toLowerCase().includes(search.toLowerCase());
@@ -89,6 +105,49 @@ export const ProjectsScreen: React.FC = () => {
       (selectedFilter === 'In Progress' && p.progress < 1.0);
     return matchesSearch && matchesFilter;
   });
+
+  const handleCreateProject = () => {
+    if (!newTitle.trim()) {
+      return;
+    }
+
+    const createdProject: Project = {
+      id: `p_${Date.now()}`,
+      title: newTitle.trim(),
+      description: newDesc.trim() || 'Dynamic project created by user.',
+      category: newCategory,
+      progress: 0.1,
+      badge: 'New',
+      badgeVariant: 'primary',
+      team: ['JD'],
+      dueDate: 'Dec 15',
+    };
+
+    setProjects(prev => [createdProject, ...prev]);
+    setShowModal(false);
+    setNewTitle('');
+    setNewDesc('');
+
+    // Seamless navigation directly into the newly created project detail view
+    navigate('ProjectDetail', {
+      id: createdProject.id,
+      title: createdProject.title,
+      subtitle: createdProject.description,
+      progress: createdProject.progress,
+      badge: createdProject.badge,
+    });
+  };
+
+  const handleMemberPress = (memberInitials: string) => {
+    if (memberInitials === 'JD') {
+      navigate('Profile');
+      return;
+    }
+    const member = MEMBER_MAP[memberInitials];
+    if (member) {
+      navigate('ChatDetail', member);
+    }
+  };
 
   const topPadding =
     Platform.OS === 'android'
@@ -114,7 +173,11 @@ export const ProjectsScreen: React.FC = () => {
           subtitle="Manage your ongoing workflows and team tasks"
           backLabel="Back"
           rightAction={
-            <TouchableOpacity style={styles.newBtn} activeOpacity={0.8}>
+            <TouchableOpacity
+              style={styles.newBtn}
+              activeOpacity={0.8}
+              onPress={() => setShowModal(true)}
+            >
               <Text style={styles.newBtnText}>+ New</Text>
             </TouchableOpacity>
           }
@@ -122,10 +185,14 @@ export const ProjectsScreen: React.FC = () => {
 
         {/* Search Bar */}
         <View style={styles.searchBar}>
-          <Text style={styles.searchIcon}>🔍</Text>
+          {/* Vector Search Glyph */}
+          <View style={styles.searchIconGlyph}>
+            <View style={styles.searchCircle} />
+            <View style={styles.searchHandle} />
+          </View>
           <TextInput
             style={styles.searchInput}
-            placeholder="Search projects..."
+            placeholder="Search projects by title or scope..."
             placeholderTextColor={colors.textMuted}
             value={search}
             onChangeText={setSearch}
@@ -207,19 +274,21 @@ export const ProjectsScreen: React.FC = () => {
                   </Text>
                 </View>
 
-                {/* Card Footer */}
+                {/* Card Footer with Clickable Team Avatars */}
                 <View style={styles.cardFooter}>
                   <View style={styles.teamAvatars}>
                     {project.team.map((member, idx) => (
-                      <View
+                      <TouchableOpacity
                         key={idx}
+                        activeOpacity={0.7}
+                        onPress={() => handleMemberPress(member)}
                         style={[
                           styles.teamAvatar,
                           idx > 0 && styles.teamAvatarOverlap,
                         ]}
                       >
                         <Text style={styles.teamAvatarText}>{member}</Text>
-                      </View>
+                      </TouchableOpacity>
                     ))}
                   </View>
                   <Text style={styles.dueDateText}>Due {project.dueDate}</Text>
@@ -229,6 +298,83 @@ export const ProjectsScreen: React.FC = () => {
           ))}
         </View>
       </ScrollView>
+
+      {/* New Project Modal */}
+      <Modal
+        visible={showModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowModal(false)}
+      >
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalSheet}>
+            <View style={styles.modalHeaderRow}>
+              <Text style={styles.modalTitle}>Register New Project</Text>
+              <TouchableOpacity
+                onPress={() => setShowModal(false)}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Text style={styles.modalCloseText}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.modalForm}>
+              <Text style={styles.modalLabel}>Project Title</Text>
+              <TextInput
+                style={styles.modalInput}
+                placeholder="e.g. Real-Time Telemetry Pipeline"
+                placeholderTextColor="#94A3B8"
+                value={newTitle}
+                onChangeText={setNewTitle}
+              />
+
+              <Text style={styles.modalLabel}>Category</Text>
+              <View style={styles.categoryPillsRow}>
+                {['Engineering', 'Design', 'Backend', 'Security'].map(cat => (
+                  <TouchableOpacity
+                    key={cat}
+                    style={[
+                      styles.categoryPill,
+                      newCategory === cat && styles.categoryPillActive,
+                    ]}
+                    onPress={() => setNewCategory(cat)}
+                  >
+                    <Text
+                      style={[
+                        styles.categoryPillText,
+                        newCategory === cat && styles.categoryPillTextActive,
+                      ]}
+                    >
+                      {cat}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <Text style={styles.modalLabel}>Description / Scope</Text>
+              <TextInput
+                style={[styles.modalInput, styles.modalTextArea]}
+                placeholder="Key deliverables, timelines, and team ownership..."
+                placeholderTextColor="#94A3B8"
+                value={newDesc}
+                onChangeText={setNewDesc}
+                multiline={true}
+                numberOfLines={3}
+              />
+
+              <TouchableOpacity
+                style={styles.submitProjectBtn}
+                onPress={handleCreateProject}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.submitProjectBtnText}>
+                  Create &amp; Open Project ›
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -244,30 +390,14 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 20,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: '800',
-    color: colors.textPrimary,
-  },
-  subtitle: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    marginTop: 2,
-  },
   newBtn: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: 16,
-    paddingVertical: 9,
-    borderRadius: 10,
+    backgroundColor: '#0F172A',
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 8,
   },
   newBtnText: {
-    color: colors.white,
+    color: '#FFFFFF',
     fontWeight: '700',
     fontSize: 13,
   },
@@ -275,54 +405,78 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.white,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    height: 46,
     borderWidth: 1,
     borderColor: colors.border,
-    marginBottom: 14,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    marginBottom: 16,
+    height: 46,
   },
-  searchIcon: {
-    fontSize: 15,
+  searchIconGlyph: {
+    width: 16,
+    height: 16,
     marginRight: 8,
+    position: 'relative',
+  },
+  searchCircle: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    borderWidth: 1.5,
+    borderColor: '#64748B',
+    position: 'absolute',
+    top: 1,
+    left: 1,
+  },
+  searchHandle: {
+    width: 5,
+    height: 1.5,
+    backgroundColor: '#64748B',
+    borderRadius: 1,
+    position: 'absolute',
+    bottom: 2,
+    right: 1,
+    transform: [{ rotate: '45deg' }],
   },
   searchInput: {
     flex: 1,
     fontSize: 14,
     color: colors.textPrimary,
+    paddingVertical: 0,
   },
   filterRow: {
     flexDirection: 'row',
-    marginBottom: 16,
     gap: 8,
+    marginBottom: 20,
   },
   filterChip: {
     paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 18,
+    paddingVertical: 6,
+    borderRadius: 20,
     backgroundColor: colors.white,
     borderWidth: 1,
     borderColor: colors.border,
-    marginRight: 8,
   },
   filterChipActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
+    backgroundColor: '#0F172A',
+    borderColor: '#0F172A',
   },
   filterChipText: {
     fontSize: 13,
-    fontWeight: '600',
     color: colors.textSecondary,
+    fontWeight: '600',
   },
   filterChipTextActive: {
-    color: colors.white,
+    color: '#FFFFFF',
+    fontWeight: '700',
   },
   list: {
-    gap: 14,
+    gap: 16,
   },
   projectCard: {
-    marginBottom: 12,
     padding: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -332,17 +486,18 @@ const styles = StyleSheet.create({
   },
   cardTitleBox: {
     flex: 1,
-    paddingRight: 8,
+    marginRight: 8,
   },
   cardCategory: {
-    fontSize: 11,
-    fontWeight: '700',
+    fontSize: 10,
+    fontWeight: '800',
     color: colors.primary,
+    letterSpacing: 1,
     textTransform: 'uppercase',
     marginBottom: 2,
   },
   cardTitle: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '700',
     color: colors.textPrimary,
   },
@@ -355,6 +510,7 @@ const styles = StyleSheet.create({
   progressRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 10,
     marginBottom: 14,
   },
   progressBarTrack: {
@@ -363,7 +519,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.borderLight,
     borderRadius: 3,
     overflow: 'hidden',
-    marginRight: 10,
   },
   progressBarFill: {
     height: '100%',
@@ -371,21 +526,22 @@ const styles = StyleSheet.create({
   },
   progressLabel: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '700',
     color: colors.textSecondary,
-    width: 36,
+    width: 38,
     textAlign: 'right',
   },
   cardFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingTop: 10,
+    paddingTop: 12,
     borderTopWidth: 1,
     borderTopColor: colors.borderLight,
   },
   teamAvatars: {
     flexDirection: 'row',
+    alignItems: 'center',
   },
   teamAvatar: {
     width: 28,
@@ -408,6 +564,92 @@ const styles = StyleSheet.create({
   dueDateText: {
     fontSize: 12,
     color: colors.textMuted,
-    fontWeight: '500',
+    fontWeight: '600',
+  },
+  // Modal Styles
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalSheet: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 24,
+    paddingBottom: 40,
+  },
+  modalHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 18,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  modalCloseText: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#94A3B8',
+  },
+  modalForm: {
+    gap: 12,
+  },
+  modalLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#334155',
+  },
+  modalInput: {
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    height: 46,
+    fontSize: 14,
+    color: '#0F172A',
+  },
+  modalTextArea: {
+    height: 72,
+    textAlignVertical: 'top',
+    paddingTop: 10,
+  },
+  categoryPillsRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  categoryPill: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 14,
+    backgroundColor: '#F1F5F9',
+  },
+  categoryPillActive: {
+    backgroundColor: '#4F46E5',
+  },
+  categoryPillText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#475569',
+  },
+  categoryPillTextActive: {
+    color: '#FFFFFF',
+  },
+  submitProjectBtn: {
+    backgroundColor: '#0F172A',
+    borderRadius: 14,
+    height: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  submitProjectBtnText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '700',
   },
 });

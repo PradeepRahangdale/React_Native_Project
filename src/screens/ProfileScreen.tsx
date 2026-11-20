@@ -18,7 +18,7 @@ import { useNavigation } from '../navigation';
 export const ProfileScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const { user, logout } = useAuth();
-  const { resetTo } = useNavigation();
+  const { navigate, resetTo } = useNavigation();
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
   const [biometricsEnabled, setBiometricsEnabled] = React.useState(false);
 
@@ -66,20 +66,32 @@ export const ProfileScreen: React.FC = () => {
 
         {/* Stats Strip */}
         <Card style={styles.statsCard}>
-          <View style={styles.statItem}>
+          <TouchableOpacity
+            style={styles.statItem}
+            activeOpacity={0.7}
+            onPress={() => navigate('Projects')}
+          >
             <Text style={styles.statNumber}>24</Text>
-            <Text style={styles.statLabel}>Projects</Text>
-          </View>
+            <Text style={styles.statLabel}>Projects ›</Text>
+          </TouchableOpacity>
           <View style={styles.statDivider} />
-          <View style={styles.statItem}>
+          <TouchableOpacity
+            style={styles.statItem}
+            activeOpacity={0.7}
+            onPress={() => navigate('Projects')}
+          >
             <Text style={styles.statNumber}>148</Text>
-            <Text style={styles.statLabel}>Tasks Done</Text>
-          </View>
+            <Text style={styles.statLabel}>Tasks Done ›</Text>
+          </TouchableOpacity>
           <View style={styles.statDivider} />
-          <View style={styles.statItem}>
+          <TouchableOpacity
+            style={styles.statItem}
+            activeOpacity={0.7}
+            onPress={() => navigate('Analytics')}
+          >
             <Text style={styles.statNumber}>99.4%</Text>
-            <Text style={styles.statLabel}>On-Time</Text>
-          </View>
+            <Text style={styles.statLabel}>On-Time ›</Text>
+          </TouchableOpacity>
         </Card>
 
         {/* Preferences */}
@@ -126,14 +138,34 @@ export const ProfileScreen: React.FC = () => {
 
         <Card style={styles.settingsCard}>
           {[
-            { title: 'Personal Information', icon: '👤' },
-            { title: 'Security & Two-Factor', icon: '🔒' },
-            { title: 'Billing & Plan', icon: '💳' },
-            { title: 'Help & Support', icon: '❓' },
+            {
+              title: 'Personal Information',
+              icon: '👤',
+              onPress: () => navigate('Profile'),
+            },
+            {
+              title: 'Security & Two-Factor',
+              icon: '🔒',
+              onPress: () => navigate('Notifications'),
+            },
+            {
+              title: 'Billing & Plan',
+              icon: '💳',
+              onPress: () => navigate('Analytics'),
+            },
+            {
+              title: 'Help & Support (Nova AI)',
+              icon: '❓',
+              onPress: () => navigate('AIAssistant'),
+            },
           ].map((item, idx) => (
             <React.Fragment key={item.title}>
               {idx > 0 && <View style={styles.divider} />}
-              <TouchableOpacity style={styles.menuItem} activeOpacity={0.7}>
+              <TouchableOpacity
+                style={styles.menuItem}
+                activeOpacity={0.7}
+                onPress={item.onPress}
+              >
                 <Text style={styles.menuIcon}>{item.icon}</Text>
                 <Text style={styles.menuTitle}>{item.title}</Text>
                 <Text style={styles.menuChevron}>›</Text>
