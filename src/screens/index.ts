@@ -1,4 +1,6 @@
 export * from './SplashScreen';
+export * from './LoginScreen';
+export * from './RegisterScreen';
 export * from './HomeScreen';
 export * from './ProjectsScreen';
 export * from './ProjectDetailScreen';

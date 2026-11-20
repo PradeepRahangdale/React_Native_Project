@@ -9,6 +9,7 @@ import React, { useState } from 'react';
 import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { colors } from './constants';
+import { AuthProvider } from './context';
 import { AppNavigator, NavigationProvider } from './navigation';
 import { SplashScreen } from './screens';
 
@@ -28,9 +29,11 @@ function App() {
         }
       />
       <View style={styles.container}>
-        <NavigationProvider initialScreen="Home">
-          <AppNavigator isSplashVisible={isSplashVisible} />
-        </NavigationProvider>
+        <AuthProvider>
+          <NavigationProvider initialScreen="Login">
+            <AppNavigator isSplashVisible={isSplashVisible} />
+          </NavigationProvider>
+        </AuthProvider>
 
         {isSplashVisible && (
           <SplashScreen onFinish={() => setIsSplashVisible(false)} />

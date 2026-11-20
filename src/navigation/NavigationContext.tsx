@@ -60,7 +60,11 @@ export const NavigationProvider: React.FC<{
     setHistory([{ screen: 'Home' }]);
   }, []);
 
-  const canGoBack = history.length > 1 || currentScreen !== 'Home';
+  const resetTo = useCallback((screen: ScreenName) => {
+    setHistory([{ screen }]);
+  }, []);
+
+  const canGoBack = history.length > 1;
 
   // Listen to Android hardware / gesture back button
   useEffect(() => {
@@ -87,9 +91,10 @@ export const NavigationProvider: React.FC<{
       navigate,
       goBack,
       goHome,
+      resetTo,
       canGoBack,
     }),
-    [currentScreen, currentParams, navigate, goBack, goHome, canGoBack],
+    [currentScreen, currentParams, navigate, goBack, goHome, resetTo, canGoBack],
   );
 
   return (

@@ -12,6 +12,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Badge, Card } from '../components';
 import { colors } from '../constants';
+import { useAuth } from '../context';
 import { useNavigation } from '../navigation';
 
 interface WorkstreamItem {
@@ -83,6 +84,7 @@ const WORKSTREAMS: WorkstreamItem[] = [
 export const HomeScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const { navigate } = useNavigation();
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [isFocused, setIsFocused] = useState(false);
@@ -151,7 +153,9 @@ export const HomeScreen: React.FC = () => {
             {/* Precision Avatar with Ring */}
             <View style={styles.avatarRing}>
               <View style={styles.avatarCore}>
-                <Text style={styles.avatarInitials}>JD</Text>
+                <Text style={styles.avatarInitials}>
+                  {user?.avatarInitials || 'JD'}
+                </Text>
               </View>
               <View style={styles.onlinePulseBadge} />
             </View>
@@ -167,10 +171,12 @@ export const HomeScreen: React.FC = () => {
                   }).toUpperCase()}
                 </Text>
                 <View style={styles.microDivider} />
-                <Text style={styles.roleLabelText}>LEAD</Text>
+                <Text style={styles.roleLabelText}>
+                  {user?.role?.split(' ')[0]?.toUpperCase() || 'LEAD'}
+                </Text>
               </View>
               <Text style={styles.greetingTitle}>
-                {greeting}, John
+                {greeting}, {user?.name?.split(' ')[0] || 'John'}
               </Text>
             </View>
           </TouchableOpacity>

@@ -8,11 +8,13 @@ import {
   AnalyticsScreen,
   ChatDetailScreen,
   HomeScreen,
+  LoginScreen,
   MessagesScreen,
   NotificationsScreen,
   ProfileScreen,
   ProjectDetailScreen,
   ProjectsScreen,
+  RegisterScreen,
 } from '../screens';
 import { useNavigation } from './NavigationContext';
 import { ScreenName } from './types';
@@ -112,6 +114,10 @@ export const AppNavigator: React.FC<AppNavigatorProps> = ({
 
   const renderScreen = () => {
     switch (currentScreen) {
+      case 'Login':
+        return <LoginScreen />;
+      case 'Register':
+        return <RegisterScreen />;
       case 'Projects':
         return <ProjectsScreen />;
       case 'ProjectDetail':

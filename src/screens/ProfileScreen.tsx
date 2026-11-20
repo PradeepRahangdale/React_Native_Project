@@ -12,9 +12,13 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Badge, Card, ScreenHeader } from '../components';
 import { colors } from '../constants';
+import { useAuth } from '../context';
+import { useNavigation } from '../navigation';
 
 export const ProfileScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
+  const { user, logout } = useAuth();
+  const { resetTo } = useNavigation();
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
   const [biometricsEnabled, setBiometricsEnabled] = React.useState(false);
 
@@ -22,6 +26,11 @@ export const ProfileScreen: React.FC = () => {
     Platform.OS === 'android'
       ? Math.max(insets.top, StatusBar.currentHeight || 0) + 16
       : insets.top + 16;
+
+  const handleSignOut = () => {
+    logout();
+    resetTo('Login');
+  };
 
   return (
     <View style={styles.screen}>
@@ -42,12 +51,14 @@ export const ProfileScreen: React.FC = () => {
         {/* Profile Header */}
         <View style={styles.profileHeader}>
           <View style={styles.avatarLarge}>
-            <Text style={styles.avatarLargeText}>JD</Text>
+            <Text style={styles.avatarLargeText}>
+              {user?.avatarInitials || 'JD'}
+            </Text>
           </View>
-          <Text style={styles.name}>John Doe</Text>
-          <Text style={styles.email}>john.doe@company.io</Text>
+          <Text style={styles.name}>{user?.name || 'John Doe'}</Text>
+          <Text style={styles.email}>{user?.email || 'john.doe@company.io'}</Text>
           <Badge
-            label="Pro Workspace Admin"
+            label={user?.role || 'Pro Workspace Admin'}
             variant="accent"
             style={styles.roleBadge}
           />
@@ -132,7 +143,11 @@ export const ProfileScreen: React.FC = () => {
         </Card>
 
         {/* Sign Out Button */}
-        <TouchableOpacity style={styles.signOutBtn} activeOpacity={0.8}>
+        <TouchableOpacity
+          style={styles.signOutBtn}
+          activeOpacity={0.8}
+          onPress={handleSignOut}
+        >
           <Text style={styles.signOutText}>Sign Out</Text>
         </TouchableOpacity>
       </ScrollView>

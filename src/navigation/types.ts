@@ -1,4 +1,6 @@
 export type ScreenName =
+  | 'Login'
+  | 'Register'
   | 'Home'
   | 'Projects'
   | 'ProjectDetail'
@@ -25,6 +27,8 @@ export interface ChatDetailParams {
 }
 
 export type ScreenParams = {
+  Login: undefined;
+  Register: undefined;
   Home: undefined;
   Projects: undefined;
   ProjectDetail: ProjectDetailParams;
@@ -42,5 +46,6 @@ export interface NavigationContextType {
   navigate: <T extends ScreenName>(screen: T, params?: ScreenParams[T]) => void;
   goBack: () => void;
   goHome: () => void;
+  resetTo: (screen: ScreenName) => void;
   canGoBack: boolean;
 }
