@@ -16,107 +16,111 @@ interface SplashScreenProps {
   onFinish: () => void;
 }
 
-const STATUS_STAGES = [
-  'Initializing workspace engine...',
-  'Connecting Nova AI companion...',
-  'Syncing project matrices...',
-  'Workspace ready',
+const BOOT_STAGES = [
+  'INITIALIZING SYSTEM ARCHITECTURE...',
+  'ORCHESTRATING WORKSPACE MATRICES...',
+  'SYNCHRONIZING ENTERPRISE CORES...',
+  'WORKSPACE READY',
 ];
 
 export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
-  const [statusText, setStatusText] = useState(STATUS_STAGES[0]);
+  const [stageIndex, setStageIndex] = useState(0);
 
-  // Transitions
+  // Master container exit transitions
   const containerScale = useRef(new Animated.Value(1)).current;
   const containerOpacity = useRef(new Animated.Value(1)).current;
 
-  // Ambient glow
-  const ambientScale = useRef(new Animated.Value(0.7)).current;
-  const ambientOpacity = useRef(new Animated.Value(0)).current;
+  // Ambient Lighting & Aura
+  const auraScale = useRef(new Animated.Value(0.8)).current;
+  const auraOpacity = useRef(new Animated.Value(0)).current;
 
-  // Mascot & Illustration levitation
-  const mascotEntrance = useRef(new Animated.Value(0)).current;
+  // Central Architectural Monolith Entrance & Float
+  const centerpieceEntrance = useRef(new Animated.Value(0)).current;
   const levitateAnim = useRef(new Animated.Value(0)).current;
-  const cardFloat1 = useRef(new Animated.Value(0)).current;
-  const cardFloat2 = useRef(new Animated.Value(0)).current;
+  const prismPulse = useRef(new Animated.Value(1)).current;
 
-  // Bot Eye Blink
-  const eyeBlink = useRef(new Animated.Value(1)).current;
+  // Floating Glass Blades / Precision Tiles
+  const tileFloatLeft = useRef(new Animated.Value(0)).current;
+  const tileFloatRight = useRef(new Animated.Value(0)).current;
 
-  // Text & Progress
-  const textOpacity = useRef(new Animated.Value(0)).current;
-  const textTranslateY = useRef(new Animated.Value(20)).current;
+  // Typography & Brand Reveal
+  const brandOpacity = useRef(new Animated.Value(0)).current;
+  const brandTranslateY = useRef(new Animated.Value(16)).current;
+
+  // Precision Hairline Progress
   const progressAnim = useRef(new Animated.Value(0)).current;
   const progressOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // 1. Ambient Lighting Entrance
+    // 1. Soft Ambient Aura Glow Entrance
     Animated.parallel([
-      Animated.timing(ambientOpacity, {
-        toValue: 0.9,
-        duration: 900,
+      Animated.timing(auraOpacity, {
+        toValue: 1,
+        duration: 1000,
+        easing: Easing.out(Easing.quad),
         useNativeDriver: true,
       }),
-      Animated.timing(ambientScale, {
-        toValue: 1.2,
-        duration: 2200,
+      Animated.timing(auraScale, {
+        toValue: 1.15,
+        duration: 2400,
         easing: Easing.out(Easing.cubic),
         useNativeDriver: true,
       }),
     ]).start();
 
-    // 2. Mascot & Illustration Pop-in
-    Animated.spring(mascotEntrance, {
+    // 2. Central Monolith Spring Pop-in
+    Animated.spring(centerpieceEntrance, {
       toValue: 1,
-      tension: 45,
-      friction: 6.5,
+      tension: 50,
+      friction: 7,
       useNativeDriver: true,
     }).start(() => {
-      // 3. Continuous Gentle Levitation Loop
+      // 3. Ultra-Smooth Harmonic Levitation
       Animated.loop(
         Animated.sequence([
           Animated.timing(levitateAnim, {
-            toValue: -10,
-            duration: 1400,
-            easing: Easing.inOut(Easing.sin),
-            useNativeDriver: true,
-          }),
-          Animated.timing(levitateAnim, {
-            toValue: 0,
-            duration: 1400,
-            easing: Easing.inOut(Easing.sin),
-            useNativeDriver: true,
-          }),
-        ]),
-      ).start();
-
-      // Floating card offsets
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(cardFloat1, {
-            toValue: 8,
-            duration: 1200,
-            easing: Easing.inOut(Easing.sin),
-            useNativeDriver: true,
-          }),
-          Animated.timing(cardFloat1, {
-            toValue: 0,
-            duration: 1200,
-            easing: Easing.inOut(Easing.sin),
-            useNativeDriver: true,
-          }),
-        ]),
-      ).start();
-
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(cardFloat2, {
             toValue: -8,
+            duration: 1800,
+            easing: Easing.inOut(Easing.sin),
+            useNativeDriver: true,
+          }),
+          Animated.timing(levitateAnim, {
+            toValue: 0,
+            duration: 1800,
+            easing: Easing.inOut(Easing.sin),
+            useNativeDriver: true,
+          }),
+        ]),
+      ).start();
+
+      // Subtle Prismatic Core Breathing Pulse
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(prismPulse, {
+            toValue: 1.08,
+            duration: 1400,
+            easing: Easing.inOut(Easing.quad),
+            useNativeDriver: true,
+          }),
+          Animated.timing(prismPulse, {
+            toValue: 1,
+            duration: 1400,
+            easing: Easing.inOut(Easing.quad),
+            useNativeDriver: true,
+          }),
+        ]),
+      ).start();
+
+      // Tile Left Drift
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(tileFloatLeft, {
+            toValue: -6,
             duration: 1600,
             easing: Easing.inOut(Easing.sin),
             useNativeDriver: true,
           }),
-          Animated.timing(cardFloat2, {
+          Animated.timing(tileFloatLeft, {
             toValue: 0,
             duration: 1600,
             easing: Easing.inOut(Easing.sin),
@@ -125,63 +129,64 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
         ]),
       ).start();
 
-      // Mascot Eye Blink Loop
+      // Tile Right Drift
       Animated.loop(
         Animated.sequence([
-          Animated.delay(1800),
-          Animated.timing(eyeBlink, {
-            toValue: 0.1,
-            duration: 120,
+          Animated.timing(tileFloatRight, {
+            toValue: 6,
+            duration: 1700,
+            easing: Easing.inOut(Easing.sin),
             useNativeDriver: true,
           }),
-          Animated.timing(eyeBlink, {
-            toValue: 1,
-            duration: 120,
+          Animated.timing(tileFloatRight, {
+            toValue: 0,
+            duration: 1700,
+            easing: Easing.inOut(Easing.sin),
             useNativeDriver: true,
           }),
         ]),
       ).start();
     });
 
-    // 4. Text & Branding reveal
+    // 4. Brand Typography Fade & Rise
     Animated.sequence([
-      Animated.delay(350),
+      Animated.delay(300),
       Animated.parallel([
-        Animated.timing(textTranslateY, {
+        Animated.timing(brandTranslateY, {
           toValue: 0,
-          duration: 600,
+          duration: 650,
           easing: Easing.out(Easing.cubic),
           useNativeDriver: true,
         }),
-        Animated.timing(textOpacity, {
+        Animated.timing(brandOpacity, {
           toValue: 1,
-          duration: 550,
+          duration: 600,
           useNativeDriver: true,
         }),
       ]),
     ]).start();
 
-    // 5. Progress Bar & Checkpoints
+    // 5. Hairline Progress Bar
     Animated.sequence([
-      Animated.delay(450),
+      Animated.delay(400),
       Animated.timing(progressOpacity, {
         toValue: 1,
-        duration: 350,
+        duration: 400,
         useNativeDriver: true,
       }),
       Animated.timing(progressAnim, {
         toValue: 1,
-        duration: 1600,
+        duration: 1750,
         easing: Easing.inOut(Easing.cubic),
         useNativeDriver: false,
       }),
     ]).start();
 
-    const t1 = setTimeout(() => setStatusText(STATUS_STAGES[1]), 700);
-    const t2 = setTimeout(() => setStatusText(STATUS_STAGES[2]), 1300);
-    const t3 = setTimeout(() => setStatusText(STATUS_STAGES[3]), 1850);
+    const t1 = setTimeout(() => setStageIndex(1), 600);
+    const t2 = setTimeout(() => setStageIndex(2), 1250);
+    const t3 = setTimeout(() => setStageIndex(3), 1800);
 
-    // 6. Smooth exit after 2.5s
+    // 6. Fluid Cinematic Exit
     const exitTimer = setTimeout(() => {
       triggerExit();
     }, 2500);
@@ -198,14 +203,14 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
   const triggerExit = () => {
     Animated.parallel([
       Animated.timing(containerScale, {
-        toValue: 1.05,
-        duration: 380,
+        toValue: 1.04,
+        duration: 360,
         easing: Easing.in(Easing.cubic),
         useNativeDriver: true,
       }),
       Animated.timing(containerOpacity, {
         toValue: 0,
-        duration: 350,
+        duration: 320,
         useNativeDriver: true,
       }),
     ]).start(() => {
@@ -215,7 +220,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
 
   const progressWidth = progressAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [14, width * 0.65],
+    outputRange: [12, width * 0.72],
   });
 
   return (
@@ -230,182 +235,180 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
     >
       <StatusBar barStyle="light-content" />
 
-      {/* Atmospheric Glow Spheres */}
+      {/* Atmospheric Soft Lighting Accents (Luxury Dark Obsidian & Royal Iris) */}
       <Animated.View
         style={[
-          styles.ambientGlowPrimary,
+          styles.ambientOrbPrimary,
           {
-            opacity: ambientOpacity,
-            transform: [{ scale: ambientScale }],
+            opacity: auraOpacity,
+            transform: [{ scale: auraScale }],
           },
         ]}
       />
       <Animated.View
         style={[
-          styles.ambientGlowSecondary,
+          styles.ambientOrbSecondary,
           {
-            opacity: ambientOpacity,
-            transform: [{ scale: ambientScale }],
+            opacity: auraOpacity,
+            transform: [{ scale: auraScale }],
           },
         ]}
       />
+      <View style={styles.topVignetteGradient} />
 
-      {/* Tap to skip */}
+      {/* Tap-to-skip interactive wrapper */}
       <TouchableOpacity
-        style={styles.touchArea}
+        style={styles.contentWrapper}
         activeOpacity={1}
         onPress={triggerExit}
       >
-        {/* Center Illustration Scene */}
-        <View style={styles.illustrationSection}>
+        {/* Top Architecture Pill */}
+        <View style={styles.topMetaContainer}>
+          <View style={styles.specimenBadge}>
+            <View style={styles.livePulseDot} />
+            <Text style={styles.specimenText}>WORKSPACE INTELLIGENCE</Text>
+          </View>
+        </View>
+
+        {/* Center Architectural Illustration Stage */}
+        <View style={styles.stageContainer}>
           <Animated.View
             style={[
-              styles.illustrationStage,
+              styles.architecturalStage,
               {
-                opacity: mascotEntrance,
+                opacity: centerpieceEntrance,
                 transform: [
-                  { scale: mascotEntrance },
+                  { scale: centerpieceEntrance },
                   { translateY: levitateAnim },
                 ],
               },
             ]}
           >
-            {/* Holographic Glowing Base Ring */}
-            <View style={styles.holoBaseRing}>
-              <View style={styles.holoInnerPulse} />
+            {/* Precision Coordinate Guides */}
+            <Text style={styles.gridCrossTopLeft}>+</Text>
+            <Text style={styles.gridCrossTopRight}>+</Text>
+            <Text style={styles.gridCrossBottomLeft}>+</Text>
+            <Text style={styles.gridCrossBottomRight}>+</Text>
+
+            {/* Subtle Ethereal Platform Base */}
+            <View style={styles.platformHaloRing}>
+              <View style={styles.platformInnerCore} />
             </View>
 
-            {/* Floating Workspace UI Card 1 (Top-Left: Analytics) */}
+            {/* Hairline Orbital Rings */}
+            <View style={styles.orbitOuterRing}>
+              <View style={styles.satelliteNode} />
+            </View>
+            <View style={styles.orbitInnerRing} />
+
+            {/* Left Precision Frosted Glass Tile: Velocity & Analytics */}
             <Animated.View
               style={[
-                styles.floatingCard1,
-                { transform: [{ translateY: cardFloat1 }] },
+                styles.glassTileLeft,
+                { transform: [{ translateY: tileFloatLeft }] },
               ]}
             >
-              <Text style={styles.cardIcon}>📊</Text>
-              <View>
-                <Text style={styles.cardTitle}>Velocity</Text>
-                <Text style={styles.cardValue}>+94.2%</Text>
+              <View style={styles.tileHeaderRow}>
+                <View style={styles.tileHeaderDot} />
+                <Text style={styles.tileCategoryText}>VELOCITY</Text>
               </View>
+              {/* Mini Precision Vector Chart Bars */}
+              <View style={styles.chartBarsContainer}>
+                <View style={[styles.chartBar, styles.bar1]} />
+                <View style={[styles.chartBar, styles.bar2]} />
+                <View style={[styles.chartBar, styles.bar3]} />
+                <View style={[styles.chartBar, styles.bar4]} />
+              </View>
+              <Text style={styles.tileValueText}>+38.4%</Text>
             </Animated.View>
 
-            {/* Floating Workspace UI Card 2 (Top-Right: AI Copilot) */}
+            {/* Right Precision Frosted Glass Tile: Quantum Security & Sync */}
             <Animated.View
               style={[
-                styles.floatingCard2,
-                { transform: [{ translateY: cardFloat2 }] },
+                styles.glassTileRight,
+                { transform: [{ translateY: tileFloatRight }] },
               ]}
             >
-              <View style={styles.aiCardHeader}>
-                <Text style={styles.sparkleIcon}>✨</Text>
-                <View style={styles.activeDot} />
+              <View style={styles.tileHeaderRow}>
+                <View style={[styles.tileHeaderDot, styles.dotSuccess]} />
+                <Text style={styles.tileCategoryText}>ENCRYPTED</Text>
               </View>
-              <Text style={styles.aiBadgeText}>Nova AI</Text>
+              {/* Clean Vector Polyline Trend / Sparkline */}
+              <View style={styles.sparklineContainer}>
+                <View style={styles.sparklineSegmentA} />
+                <View style={styles.sparklineSegmentB} />
+                <View style={styles.sparklineSegmentC} />
+                <View style={styles.sparklineHead} />
+              </View>
+              <Text style={styles.tileStatusText}>99.98% UPTIME</Text>
             </Animated.View>
 
-            {/* Floating Workspace UI Card 3 (Bottom-Right: Tasks Done) */}
-            <Animated.View
-              style={[
-                styles.floatingCard3,
-                { transform: [{ translateY: cardFloat1 }] },
-              ]}
-            >
-              <Text style={styles.checkIcon}>✓</Text>
-              <Text style={styles.taskText}>18 / 24 Done</Text>
-            </Animated.View>
-
-            {/* Floating Sparkles */}
-            <Text style={styles.sparkle1}>✦</Text>
-            <Text style={styles.sparkle2}>★</Text>
-            <Text style={styles.sparkle3}>✧</Text>
-
-            {/* Vector Character Mascot (Nova Tech Companion) */}
-            <View style={styles.mascotWrapper}>
-              {/* Antennae */}
-              <View style={styles.antennaeRow}>
-                <View style={styles.antennaStem} />
-                <View style={styles.antennaTip} />
-              </View>
-
-              {/* Robot Head */}
-              <View style={styles.robotHead}>
-                {/* Glossy Curved Visor */}
-                <View style={styles.robotVisor}>
-                  {/* Glowing LED Eyes */}
+            {/* Central Precision Glass Prism Monolith */}
+            <View style={styles.monolithContainer}>
+              {/* Outer Frosted Glass Facet Diamond */}
+              <View style={styles.monolithGlassFacet}>
+                {/* Mid Diamond Bezel */}
+                <View style={styles.monolithMidBezel}>
+                  {/* Inner Obsidian Core with Radial Pulse */}
                   <Animated.View
                     style={[
-                      styles.eyeRow,
-                      { transform: [{ scaleY: eyeBlink }] },
+                      styles.monolithInnerObsidian,
+                      { transform: [{ scale: prismPulse }] },
                     ]}
                   >
-                    <View style={styles.eyeLuminous} />
-                    <View style={styles.mouthSmile} />
-                    <View style={styles.eyeLuminous} />
+                    <View style={styles.coreGlowAura} />
+                    {/* Bespoke Geometric Monogram / Emblem */}
+                    <Text style={styles.coreEmblemText}>◈</Text>
                   </Animated.View>
                 </View>
-                {/* Ear Sensors */}
-                <View style={styles.earLeft} />
-                <View style={styles.earRight} />
-              </View>
-
-              {/* Robot Body / Chassis */}
-              <View style={styles.robotBody}>
-                {/* Center Core Reactor */}
-                <View style={styles.reactorCore}>
-                  <Text style={styles.coreLightning}>⚡</Text>
-                </View>
-
-                {/* Floating Robot Hands */}
-                <View style={styles.handLeft} />
-                <View style={styles.handRight} />
               </View>
             </View>
           </Animated.View>
         </View>
 
-        {/* Brand Information */}
+        {/* Brand Identity Block */}
         <Animated.View
           style={[
             styles.brandBlock,
             {
-              opacity: textOpacity,
-              transform: [{ translateY: textTranslateY }],
+              opacity: brandOpacity,
+              transform: [{ translateY: brandTranslateY }],
             },
           ]}
         >
-          {/* Category Chip */}
-          <View style={styles.chipPill}>
-            <View style={styles.liveGreenDot} />
-            <Text style={styles.chipText}>SMART WORKSPACE OS</Text>
+          {/* Main Title with Refined Tracking */}
+          <View style={styles.brandTitleRow}>
+            <Text style={styles.brandTitlePrimary}>MY</Text>
+            <Text style={styles.brandTitleAccent}>APP</Text>
+            <View style={styles.brandTitleDot} />
           </View>
 
-          {/* App Title */}
-          <View style={styles.titleRow}>
-            <Text style={styles.titleMain}>MY</Text>
-            <Text style={styles.titleAccent}>APP</Text>
-            <View style={styles.titleDot} />
-          </View>
-
-          {/* Tagline */}
-          <Text style={styles.tagline}>
-            Intelligent Project Management &amp; Team Velocity
+          {/* Luxury Tagline */}
+          <Text style={styles.brandSubtitle}>
+            Autonomous Workspace &amp; Project Intelligence
           </Text>
         </Animated.View>
 
-        {/* Bottom Loading Bar & Status */}
+        {/* Bottom Precision Hairline Progress & Telemetry */}
         <Animated.View
-          style={[styles.bottomSection, { opacity: progressOpacity }]}
+          style={[styles.bottomControlBar, { opacity: progressOpacity }]}
         >
-          <View style={styles.progressTrack}>
+          {/* Hairline Progress Track */}
+          <View style={styles.hairlineTrack}>
             <Animated.View
-              style={[styles.progressFill, { width: progressWidth }]}
+              style={[styles.hairlineFill, { width: progressWidth }]}
             >
-              <View style={styles.progressGlow} />
+              <View style={styles.leadingLightHead} />
             </Animated.View>
           </View>
 
-          <Text style={styles.statusText}>{statusText}</Text>
-          <Text style={styles.buildLabel}>V2.4 • FAST &amp; SECURE</Text>
+          {/* Live Telemetry Status */}
+          <View style={styles.telemetryRow}>
+            <Text style={styles.telemetryStatusText}>
+              {BOOT_STAGES[stageIndex]}
+            </Text>
+            <Text style={styles.telemetryVersionText}>REL 2.4.0</Text>
+          </View>
         </Animated.View>
       </TouchableOpacity>
     </Animated.View>
@@ -419,428 +422,456 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: '#070B19', // Deep cosmic navy
+    backgroundColor: '#06080F', // Ultra-luxurious velvet obsidian noir
     zIndex: 99999,
     elevation: 99999,
     overflow: 'hidden',
   },
-  touchArea: {
+  contentWrapper: {
     flex: 1,
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 44,
+    paddingTop: 56,
+    paddingBottom: 40,
+    paddingHorizontal: 24,
   },
-  ambientGlowPrimary: {
+  topVignetteGradient: {
     position: 'absolute',
-    top: '20%',
-    left: width * 0.5 - 140,
-    width: 280,
-    height: 280,
-    borderRadius: 140,
-    backgroundColor: 'rgba(79, 70, 229, 0.35)', // Vibrant indigo
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 160,
+    backgroundColor: 'rgba(255, 255, 255, 0.015)',
   },
-  ambientGlowSecondary: {
+  // Ambient Lighting Orbs
+  ambientOrbPrimary: {
     position: 'absolute',
-    top: '32%',
-    left: width * 0.5 - 110,
-    width: 220,
-    height: 220,
-    borderRadius: 110,
-    backgroundColor: 'rgba(6, 182, 212, 0.25)', // Neon cyan
+    top: '18%',
+    left: width * 0.5 - 130,
+    width: 260,
+    height: 260,
+    borderRadius: 130,
+    backgroundColor: 'rgba(99, 102, 241, 0.16)', // Royal iris
   },
-  illustrationSection: {
+  ambientOrbSecondary: {
+    position: 'absolute',
+    top: '26%',
+    left: width * 0.5 - 100,
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: 'rgba(56, 189, 248, 0.10)', // Ice cerulean
+  },
+  // Top Specimen Metadata
+  topMetaContainer: {
+    alignItems: 'center',
+  },
+  specimenBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    paddingVertical: 5,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    gap: 8,
+  },
+  livePulseDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#6366F1',
+    shadowColor: '#6366F1',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  specimenText: {
+    fontSize: 9,
+    fontWeight: '700',
+    letterSpacing: 2,
+    color: 'rgba(255, 255, 255, 0.65)',
+  },
+  // Center Architectural Stage
+  stageContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
   },
-  illustrationStage: {
-    width: 260,
+  architecturalStage: {
+    width: 280,
     height: 260,
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
   },
-  holoBaseRing: {
+  // Subtle Floor Platform
+  platformHaloRing: {
     position: 'absolute',
-    bottom: 14,
-    width: 170,
-    height: 42,
-    borderRadius: 21,
-    borderWidth: 2,
-    borderColor: 'rgba(99, 102, 241, 0.65)',
-    backgroundColor: 'rgba(79, 70, 229, 0.15)',
+    bottom: 12,
+    width: 190,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: 'rgba(99, 102, 241, 0.25)',
+    backgroundColor: 'rgba(99, 102, 241, 0.05)',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  holoInnerPulse: {
+  platformInnerCore: {
     width: 110,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: 'rgba(6, 182, 212, 0.35)',
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: 'rgba(56, 189, 248, 0.12)',
   },
-  // Floating Cards
-  floatingCard1: {
+  // Precision Orbital Rings
+  orbitOuterRing: {
     position: 'absolute',
-    top: 15,
-    left: 0,
-    flexDirection: 'row',
+    width: 220,
+    height: 130,
+    borderRadius: 110,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#1E1B4B',
-    paddingHorizontal: 10,
-    paddingVertical: 7,
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: '#6366F1',
-    shadowColor: '#4F46E5',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 8,
-    gap: 8,
-    zIndex: 10,
   },
-  cardIcon: {
-    fontSize: 16,
-  },
-  cardTitle: {
-    fontSize: 9,
-    fontWeight: '700',
-    color: '#A5B4FC',
-  },
-  cardValue: {
-    fontSize: 12,
-    fontWeight: '900',
-    color: '#38BDF8',
-  },
-  floatingCard2: {
+  satelliteNode: {
     position: 'absolute',
-    top: 25,
-    right: 5,
-    backgroundColor: '#1E1B4B',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 16,
-    borderWidth: 1.5,
-    borderColor: '#38BDF8',
-    shadowColor: '#06B6D4',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 8,
-    elevation: 8,
-    alignItems: 'center',
-    zIndex: 10,
-  },
-  aiCardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    marginBottom: 2,
-  },
-  sparkleIcon: {
-    fontSize: 15,
-  },
-  activeDot: {
+    top: 6,
+    right: 48,
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#10B981',
+    backgroundColor: '#E2E8F0',
+    shadowColor: '#FFFFFF',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.9,
+    shadowRadius: 5,
+    elevation: 3,
   },
-  aiBadgeText: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: '#FFFFFF',
-  },
-  floatingCard3: {
+  orbitInnerRing: {
     position: 'absolute',
-    bottom: 50,
-    right: -10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(15, 23, 42, 0.95)',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 12,
+    width: 170,
+    height: 96,
+    borderRadius: 85,
     borderWidth: 1,
-    borderColor: '#10B981',
-    gap: 6,
+    borderColor: 'rgba(99, 102, 241, 0.20)',
+    borderStyle: 'dashed',
+  },
+  // Coordinate Crosshairs
+  gridCrossTopLeft: {
+    position: 'absolute',
+    top: 6,
+    left: 8,
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.18)',
+    fontWeight: '300',
+  },
+  gridCrossTopRight: {
+    position: 'absolute',
+    top: 6,
+    right: 8,
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.18)',
+    fontWeight: '300',
+  },
+  gridCrossBottomLeft: {
+    position: 'absolute',
+    bottom: 6,
+    left: 8,
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.18)',
+    fontWeight: '300',
+  },
+  gridCrossBottomRight: {
+    position: 'absolute',
+    bottom: 6,
+    right: 8,
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.18)',
+    fontWeight: '300',
+  },
+  // Left Glass Tile (Velocity Engine)
+  glassTileLeft: {
+    position: 'absolute',
+    top: 24,
+    left: -4,
+    backgroundColor: 'rgba(15, 20, 36, 0.85)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.12)',
+    borderRadius: 14,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.5,
+    shadowRadius: 16,
+    elevation: 8,
     zIndex: 10,
   },
-  checkIcon: {
-    color: '#10B981',
-    fontSize: 12,
-    fontWeight: '900',
+  tileHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 6,
   },
-  taskText: {
-    color: '#E2E8F0',
-    fontSize: 10,
+  tileHeaderDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
+    backgroundColor: '#6366F1',
+  },
+  tileCategoryText: {
+    fontSize: 8,
     fontWeight: '700',
+    letterSpacing: 1.5,
+    color: '#94A3B8',
   },
-  sparkle1: {
-    position: 'absolute',
-    top: 5,
-    left: '46%',
-    color: '#38BDF8',
-    fontSize: 18,
-    fontWeight: '900',
+  chartBarsContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: 4,
+    height: 18,
+    marginBottom: 4,
   },
-  sparkle2: {
-    position: 'absolute',
-    bottom: 85,
-    left: 10,
-    color: '#F59E0B',
-    fontSize: 14,
+  chartBar: {
+    width: 4,
+    borderRadius: 2,
   },
-  sparkle3: {
-    position: 'absolute',
-    top: 85,
-    right: -8,
-    color: '#A5B4FC',
+  bar1: {
+    height: 8,
+    backgroundColor: 'rgba(99, 102, 241, 0.45)',
+  },
+  bar2: {
+    height: 12,
+    backgroundColor: 'rgba(99, 102, 241, 0.75)',
+  },
+  bar3: {
+    height: 15,
+    backgroundColor: '#818CF8',
+  },
+  bar4: {
+    height: 18,
+    backgroundColor: '#38BDF8',
+  },
+  tileValueText: {
     fontSize: 12,
+    fontWeight: '800',
+    color: '#F8FAFC',
+    letterSpacing: 0.5,
   },
-  // Mascot Illustration
-  mascotWrapper: {
+  // Right Glass Tile (Security Matrix)
+  glassTileRight: {
+    position: 'absolute',
+    bottom: 34,
+    right: -8,
+    backgroundColor: 'rgba(15, 20, 36, 0.85)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.12)',
+    borderRadius: 14,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.5,
+    shadowRadius: 16,
+    elevation: 8,
+    zIndex: 10,
+  },
+  dotSuccess: {
+    backgroundColor: '#10B981',
+  },
+  sparklineContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 14,
+    gap: 2,
+    marginBottom: 4,
+  },
+  sparklineSegmentA: {
+    width: 8,
+    height: 2,
+    backgroundColor: 'rgba(16, 185, 129, 0.4)',
+    transform: [{ rotate: '15deg' }],
+  },
+  sparklineSegmentB: {
+    width: 10,
+    height: 2,
+    backgroundColor: 'rgba(16, 185, 129, 0.7)',
+    transform: [{ rotate: '-25deg' }],
+  },
+  sparklineSegmentC: {
+    width: 12,
+    height: 2,
+    backgroundColor: '#10B981',
+    transform: [{ rotate: '30deg' }],
+  },
+  sparklineHead: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#34D399',
+    shadowColor: '#10B981',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.9,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  tileStatusText: {
+    fontSize: 9,
+    fontWeight: '800',
+    letterSpacing: 1,
+    color: '#34D399',
+  },
+  // Central Monolith Prism
+  monolithContainer: {
+    justifyContent: 'center',
     alignItems: 'center',
     zIndex: 5,
   },
-  antennaeRow: {
+  monolithGlassFacet: {
+    width: 96,
+    height: 96,
+    borderRadius: 24,
+    transform: [{ rotate: '45deg' }],
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.18)',
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: -2,
+    shadowColor: '#6366F1',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.45,
+    shadowRadius: 20,
+    elevation: 12,
   },
-  antennaTip: {
-    position: 'absolute',
-    top: -5,
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#38BDF8',
-    shadowColor: '#38BDF8',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.9,
-    shadowRadius: 6,
-    elevation: 4,
+  monolithMidBezel: {
+    width: 76,
+    height: 76,
+    borderRadius: 18,
+    backgroundColor: '#0F1528',
+    borderWidth: 1.5,
+    borderColor: 'rgba(99, 102, 241, 0.55)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  antennaStem: {
-    width: 3,
-    height: 12,
-    backgroundColor: '#6366F1',
-    borderRadius: 2,
-  },
-  robotHead: {
-    width: 86,
-    height: 70,
-    borderRadius: 35,
-    backgroundColor: '#1E1B4B',
-    borderWidth: 2.5,
-    borderColor: '#6366F1',
+  monolithInnerObsidian: {
+    width: 54,
+    height: 54,
+    borderRadius: 12,
+    backgroundColor: '#070A14',
+    borderWidth: 1,
+    borderColor: '#818CF8',
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
-    shadowColor: '#4F46E5',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.5,
-    shadowRadius: 12,
-    elevation: 10,
   },
-  robotVisor: {
-    width: 66,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#070B19',
-    borderWidth: 1.5,
-    borderColor: '#38BDF8',
-    justifyContent: 'center',
+  coreGlowAura: {
+    position: 'absolute',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(99, 102, 241, 0.35)',
+  },
+  coreEmblemText: {
+    fontSize: 22,
+    color: '#FFFFFF',
+    fontWeight: '800',
+    transform: [{ rotate: '-45deg' }], // Counteract diamond rotation for clean upright alignment
+    textShadowColor: 'rgba(129, 140, 248, 0.9)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
+  },
+  // Brand Identity Block
+  brandBlock: {
     alignItems: 'center',
+    marginBottom: 20,
   },
-  eyeRow: {
+  brandTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    width: 44,
-    paddingHorizontal: 4,
+    marginBottom: 6,
   },
-  eyeLuminous: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+  brandTitlePrimary: {
+    fontSize: 32,
+    fontWeight: '900',
+    letterSpacing: 6,
+    color: '#FFFFFF',
+  },
+  brandTitleAccent: {
+    fontSize: 32,
+    fontWeight: '300',
+    letterSpacing: 6,
+    color: '#818CF8',
+  },
+  brandTitleDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#38BDF8',
+    marginLeft: 4,
+    marginBottom: 16,
+  },
+  brandSubtitle: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: 'rgba(255, 255, 255, 0.45)',
+    letterSpacing: 0.8,
+    textAlign: 'center',
+    maxWidth: 280,
+  },
+  // Hairline Bottom Telemetry & Progress
+  bottomControlBar: {
+    width: '100%',
+    alignItems: 'center',
+    gap: 12,
+  },
+  hairlineTrack: {
+    width: '72%',
+    height: 2,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 1,
+    overflow: 'visible',
+    position: 'relative',
+  },
+  hairlineFill: {
+    height: 2,
+    backgroundColor: '#6366F1',
+    borderRadius: 1,
+    position: 'relative',
+  },
+  leadingLightHead: {
+    position: 'absolute',
+    right: 0,
+    top: -2,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
     backgroundColor: '#38BDF8',
     shadowColor: '#38BDF8',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 1,
     shadowRadius: 6,
+    elevation: 3,
   },
-  mouthSmile: {
-    width: 12,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: 'rgba(56, 189, 248, 0.8)',
-  },
-  earLeft: {
-    position: 'absolute',
-    left: -7,
-    width: 8,
-    height: 18,
-    borderRadius: 4,
-    backgroundColor: '#38BDF8',
-  },
-  earRight: {
-    position: 'absolute',
-    right: -7,
-    width: 8,
-    height: 18,
-    borderRadius: 4,
-    backgroundColor: '#38BDF8',
-  },
-  robotBody: {
-    width: 72,
-    height: 54,
-    borderRadius: 22,
-    backgroundColor: '#1E1B4B',
-    borderWidth: 2,
-    borderColor: '#4F46E5',
-    marginTop: 6,
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative',
-  },
-  reactorCore: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: '#4F46E5',
-    borderWidth: 1.5,
-    borderColor: '#38BDF8',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#38BDF8',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 8,
-  },
-  coreLightning: {
-    fontSize: 14,
-    color: '#FFFFFF',
-    fontWeight: '900',
-  },
-  handLeft: {
-    position: 'absolute',
-    left: -9,
-    width: 12,
-    height: 18,
-    borderRadius: 6,
-    backgroundColor: '#6366F1',
-  },
-  handRight: {
-    position: 'absolute',
-    right: -9,
-    width: 12,
-    height: 18,
-    borderRadius: 6,
-    backgroundColor: '#6366F1',
-  },
-  // Typography Block
-  brandBlock: {
-    alignItems: 'center',
-    paddingHorizontal: 24,
-    marginTop: -8,
-  },
-  chipPill: {
+  telemetryRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(99, 102, 241, 0.18)',
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(99, 102, 241, 0.45)',
-    marginBottom: 10,
+    justifyContent: 'space-between',
+    width: '72%',
   },
-  liveGreenDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#10B981',
-    marginRight: 8,
-  },
-  chipText: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: '#A5B4FC',
-    letterSpacing: 1.4,
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 6,
-  },
-  titleMain: {
-    fontSize: 36,
-    fontWeight: '900',
-    color: '#FFFFFF',
-    letterSpacing: 2,
-  },
-  titleAccent: {
-    fontSize: 36,
-    fontWeight: '900',
-    color: '#38BDF8',
-    letterSpacing: 2,
-  },
-  titleDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#6366F1',
-    marginLeft: 4,
-    alignSelf: 'flex-end',
-    marginBottom: 8,
-  },
-  tagline: {
-    fontSize: 13,
-    color: 'rgba(226, 232, 240, 0.72)',
-    fontWeight: '500',
-    letterSpacing: 0.6,
-    textAlign: 'center',
-  },
-  bottomSection: {
-    alignItems: 'center',
-    width: '100%',
-    paddingHorizontal: 32,
-  },
-  progressTrack: {
-    width: width * 0.65,
-    height: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
-    borderRadius: 2,
-    overflow: 'hidden',
-    marginBottom: 12,
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: '#38BDF8',
-    borderRadius: 2,
-    position: 'relative',
-  },
-  progressGlow: {
-    position: 'absolute',
-    right: 0,
-    top: -2,
-    bottom: -2,
-    width: 8,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 4,
-  },
-  statusText: {
-    fontSize: 11,
-    color: 'rgba(203, 213, 225, 0.7)',
-    fontWeight: '600',
-    letterSpacing: 0.4,
-    marginBottom: 6,
-  },
-  buildLabel: {
+  telemetryStatusText: {
     fontSize: 9,
-    color: 'rgba(148, 163, 184, 0.45)',
     fontWeight: '700',
-    letterSpacing: 1.4,
+    letterSpacing: 1.5,
+    color: 'rgba(255, 255, 255, 0.40)',
+  },
+  telemetryVersionText: {
+    fontSize: 9,
+    fontWeight: '600',
+    letterSpacing: 1,
+    color: 'rgba(255, 255, 255, 0.25)',
   },
 });
