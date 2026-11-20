@@ -18,160 +18,152 @@ interface SplashScreenProps {
 
 const STATUS_STAGES = [
   'Initializing workspace engine...',
-  'Loading project matrices...',
-  'Syncing Nova AI intelligence...',
+  'Connecting Nova AI companion...',
+  'Syncing project matrices...',
   'Workspace ready',
 ];
 
 export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
   const [statusText, setStatusText] = useState(STATUS_STAGES[0]);
 
-  // Animation values
+  // Transitions
   const containerScale = useRef(new Animated.Value(1)).current;
   const containerOpacity = useRef(new Animated.Value(1)).current;
 
-  // Ambient glows
-  const ambientGlowScale = useRef(new Animated.Value(0.6)).current;
-  const ambientGlowOpacity = useRef(new Animated.Value(0)).current;
+  // Ambient glow
+  const ambientScale = useRef(new Animated.Value(0.7)).current;
+  const ambientOpacity = useRef(new Animated.Value(0)).current;
 
-  // Logo animations
-  const logoScale = useRef(new Animated.Value(0.4)).current;
-  const logoOpacity = useRef(new Animated.Value(0)).current;
-  const logoRotate = useRef(new Animated.Value(0)).current;
+  // Mascot & Illustration levitation
+  const mascotEntrance = useRef(new Animated.Value(0)).current;
+  const levitateAnim = useRef(new Animated.Value(0)).current;
+  const cardFloat1 = useRef(new Animated.Value(0)).current;
+  const cardFloat2 = useRef(new Animated.Value(0)).current;
 
-  // Radar rings
-  const ring1Scale = useRef(new Animated.Value(0.8)).current;
-  const ring1Opacity = useRef(new Animated.Value(0)).current;
-  const ring2Scale = useRef(new Animated.Value(0.8)).current;
-  const ring2Opacity = useRef(new Animated.Value(0)).current;
+  // Bot Eye Blink
+  const eyeBlink = useRef(new Animated.Value(1)).current;
 
-  // Text and badges
-  const textTranslateY = useRef(new Animated.Value(24)).current;
+  // Text & Progress
   const textOpacity = useRef(new Animated.Value(0)).current;
-
-  // Progress bar
+  const textTranslateY = useRef(new Animated.Value(20)).current;
   const progressAnim = useRef(new Animated.Value(0)).current;
   const progressOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // 1. Ambient atmospheric glow entrance
+    // 1. Ambient Lighting Entrance
     Animated.parallel([
-      Animated.timing(ambientGlowOpacity, {
-        toValue: 0.85,
+      Animated.timing(ambientOpacity, {
+        toValue: 0.9,
         duration: 900,
         useNativeDriver: true,
       }),
-      Animated.timing(ambientGlowScale, {
-        toValue: 1.15,
+      Animated.timing(ambientScale, {
+        toValue: 1.2,
         duration: 2200,
         easing: Easing.out(Easing.cubic),
         useNativeDriver: true,
       }),
     ]).start();
 
-    // 2. Logo entrance with fluid spring physics
-    Animated.parallel([
-      Animated.spring(logoScale, {
-        toValue: 1,
-        tension: 50,
-        friction: 6.5,
-        useNativeDriver: true,
-      }),
-      Animated.timing(logoOpacity, {
-        toValue: 1,
-        duration: 600,
-        useNativeDriver: true,
-      }),
-      Animated.timing(logoRotate, {
-        toValue: 1,
-        duration: 1000,
-        easing: Easing.out(Easing.back(1.4)),
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      // 3. Concentric radar pulse loop
+    // 2. Mascot & Illustration Pop-in
+    Animated.spring(mascotEntrance, {
+      toValue: 1,
+      tension: 45,
+      friction: 6.5,
+      useNativeDriver: true,
+    }).start(() => {
+      // 3. Continuous Gentle Levitation Loop
       Animated.loop(
-        Animated.parallel([
-          Animated.sequence([
-            Animated.parallel([
-              Animated.timing(ring1Scale, {
-                toValue: 1.6,
-                duration: 1400,
-                easing: Easing.out(Easing.quad),
-                useNativeDriver: true,
-              }),
-              Animated.sequence([
-                Animated.timing(ring1Opacity, {
-                  toValue: 0.6,
-                  duration: 300,
-                  useNativeDriver: true,
-                }),
-                Animated.timing(ring1Opacity, {
-                  toValue: 0,
-                  duration: 1100,
-                  useNativeDriver: true,
-                }),
-              ]),
-            ]),
-            Animated.timing(ring1Scale, {
-              toValue: 0.8,
-              duration: 0,
-              useNativeDriver: true,
-            }),
-          ]),
-          Animated.sequence([
-            Animated.delay(450),
-            Animated.parallel([
-              Animated.timing(ring2Scale, {
-                toValue: 1.9,
-                duration: 1400,
-                easing: Easing.out(Easing.quad),
-                useNativeDriver: true,
-              }),
-              Animated.sequence([
-                Animated.timing(ring2Opacity, {
-                  toValue: 0.45,
-                  duration: 300,
-                  useNativeDriver: true,
-                }),
-                Animated.timing(ring2Opacity, {
-                  toValue: 0,
-                  duration: 1100,
-                  useNativeDriver: true,
-                }),
-              ]),
-            ]),
-            Animated.timing(ring2Scale, {
-              toValue: 0.8,
-              duration: 0,
-              useNativeDriver: true,
-            }),
-          ]),
+        Animated.sequence([
+          Animated.timing(levitateAnim, {
+            toValue: -10,
+            duration: 1400,
+            easing: Easing.inOut(Easing.sin),
+            useNativeDriver: true,
+          }),
+          Animated.timing(levitateAnim, {
+            toValue: 0,
+            duration: 1400,
+            easing: Easing.inOut(Easing.sin),
+            useNativeDriver: true,
+          }),
+        ]),
+      ).start();
+
+      // Floating card offsets
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(cardFloat1, {
+            toValue: 8,
+            duration: 1200,
+            easing: Easing.inOut(Easing.sin),
+            useNativeDriver: true,
+          }),
+          Animated.timing(cardFloat1, {
+            toValue: 0,
+            duration: 1200,
+            easing: Easing.inOut(Easing.sin),
+            useNativeDriver: true,
+          }),
+        ]),
+      ).start();
+
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(cardFloat2, {
+            toValue: -8,
+            duration: 1600,
+            easing: Easing.inOut(Easing.sin),
+            useNativeDriver: true,
+          }),
+          Animated.timing(cardFloat2, {
+            toValue: 0,
+            duration: 1600,
+            easing: Easing.inOut(Easing.sin),
+            useNativeDriver: true,
+          }),
+        ]),
+      ).start();
+
+      // Mascot Eye Blink Loop
+      Animated.loop(
+        Animated.sequence([
+          Animated.delay(1800),
+          Animated.timing(eyeBlink, {
+            toValue: 0.1,
+            duration: 120,
+            useNativeDriver: true,
+          }),
+          Animated.timing(eyeBlink, {
+            toValue: 1,
+            duration: 120,
+            useNativeDriver: true,
+          }),
         ]),
       ).start();
     });
 
-    // 4. Title, subtitle & badge slide up
+    // 4. Text & Branding reveal
     Animated.sequence([
-      Animated.delay(280),
+      Animated.delay(350),
       Animated.parallel([
         Animated.timing(textTranslateY, {
           toValue: 0,
-          duration: 650,
+          duration: 600,
           easing: Easing.out(Easing.cubic),
           useNativeDriver: true,
         }),
         Animated.timing(textOpacity, {
           toValue: 1,
-          duration: 600,
+          duration: 550,
           useNativeDriver: true,
         }),
       ]),
     ]).start();
 
-    // 5. Progress bar track animation with status checkpoint updates
+    // 5. Progress Bar & Checkpoints
     Animated.sequence([
-      Animated.delay(400),
+      Animated.delay(450),
       Animated.timing(progressOpacity, {
         toValue: 1,
         duration: 350,
@@ -179,21 +171,20 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
       }),
       Animated.timing(progressAnim, {
         toValue: 1,
-        duration: 1550,
+        duration: 1600,
         easing: Easing.inOut(Easing.cubic),
         useNativeDriver: false,
       }),
     ]).start();
 
-    // Update status text checkpoints
     const t1 = setTimeout(() => setStatusText(STATUS_STAGES[1]), 700);
     const t2 = setTimeout(() => setStatusText(STATUS_STAGES[2]), 1300);
     const t3 = setTimeout(() => setStatusText(STATUS_STAGES[3]), 1850);
 
-    // 6. Cinematic zoom & fade transition to main app
+    // 6. Smooth exit after 2.5s
     const exitTimer = setTimeout(() => {
       triggerExit();
-    }, 2400);
+    }, 2500);
 
     return () => {
       clearTimeout(t1);
@@ -207,14 +198,14 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
   const triggerExit = () => {
     Animated.parallel([
       Animated.timing(containerScale, {
-        toValue: 1.06,
-        duration: 420,
+        toValue: 1.05,
+        duration: 380,
         easing: Easing.in(Easing.cubic),
         useNativeDriver: true,
       }),
       Animated.timing(containerOpacity, {
         toValue: 0,
-        duration: 400,
+        duration: 350,
         useNativeDriver: true,
       }),
     ]).start(() => {
@@ -222,14 +213,9 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
     });
   };
 
-  const spin = logoRotate.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['-45deg', '0deg'],
-  });
-
   const progressWidth = progressAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [12, width * 0.62],
+    outputRange: [14, width * 0.65],
   });
 
   return (
@@ -244,26 +230,25 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
     >
       <StatusBar barStyle="light-content" />
 
-      {/* Atmospheric Ambient Glow Orbs */}
+      {/* Atmospheric Glow Spheres */}
       <Animated.View
         style={[
-          styles.glowOrbPrimary,
+          styles.ambientGlowPrimary,
           {
-            opacity: ambientGlowOpacity,
-            transform: [{ scale: ambientGlowScale }],
+            opacity: ambientOpacity,
+            transform: [{ scale: ambientScale }],
           },
         ]}
       />
       <Animated.View
         style={[
-          styles.glowOrbSecondary,
+          styles.ambientGlowSecondary,
           {
-            opacity: ambientGlowOpacity,
-            transform: [{ scale: ambientGlowScale }],
+            opacity: ambientOpacity,
+            transform: [{ scale: ambientScale }],
           },
         ]}
       />
-      <View style={styles.gridOverlay} />
 
       {/* Tap to skip */}
       <TouchableOpacity
@@ -271,109 +256,156 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
         activeOpacity={1}
         onPress={triggerExit}
       >
-        {/* Center Content */}
-        <View style={styles.centerSection}>
-          {/* Emblem & Radar Stage */}
-          <View style={styles.emblemContainer}>
-            {/* Concentric Radar Pulse Rings */}
-            <Animated.View
-              style={[
-                styles.pulseRing,
-                {
-                  opacity: ring1Opacity,
-                  transform: [{ scale: ring1Scale }],
-                },
-              ]}
-            />
-            <Animated.View
-              style={[
-                styles.pulseRingOuter,
-                {
-                  opacity: ring2Opacity,
-                  transform: [{ scale: ring2Scale }],
-                },
-              ]}
-            />
-
-            {/* Geometric High-Tech Brand Icon */}
-            <Animated.View
-              style={[
-                styles.logoWrapper,
-                {
-                  opacity: logoOpacity,
-                  transform: [{ scale: logoScale }, { rotate: spin }],
-                },
-              ]}
-            >
-              {/* Outer Diamond Shield */}
-              <View style={styles.outerDiamond}>
-                {/* Inner Glowing Core */}
-                <View style={styles.innerDiamond}>
-                  <View style={styles.monogramBox}>
-                    <Text style={styles.monogramSymbol}>◈</Text>
-                  </View>
-                </View>
-              </View>
-
-              {/* Orbiting Sparkle Satellite */}
-              <View style={styles.satelliteSparkle}>
-                <Text style={styles.satelliteText}>✦</Text>
-              </View>
-            </Animated.View>
-          </View>
-
-          {/* Brand Typography */}
+        {/* Center Illustration Scene */}
+        <View style={styles.illustrationSection}>
           <Animated.View
             style={[
-              styles.textBlock,
+              styles.illustrationStage,
               {
-                opacity: textOpacity,
-                transform: [{ translateY: textTranslateY }],
+                opacity: mascotEntrance,
+                transform: [
+                  { scale: mascotEntrance },
+                  { translateY: levitateAnim },
+                ],
               },
             ]}
           >
-            {/* Mini Category Pill */}
-            <View style={styles.miniPill}>
-              <View style={styles.pillLiveDot} />
-              <Text style={styles.miniPillText}>WORKSPACE INTELLIGENCE</Text>
+            {/* Holographic Glowing Base Ring */}
+            <View style={styles.holoBaseRing}>
+              <View style={styles.holoInnerPulse} />
             </View>
 
-            {/* App Title */}
-            <View style={styles.titleRow}>
-              <Text style={styles.titleMain}>MY</Text>
-              <Text style={styles.titleAccent}>APP</Text>
-              <View style={styles.titlePeriod} />
-            </View>
+            {/* Floating Workspace UI Card 1 (Top-Left: Analytics) */}
+            <Animated.View
+              style={[
+                styles.floatingCard1,
+                { transform: [{ translateY: cardFloat1 }] },
+              ]}
+            >
+              <Text style={styles.cardIcon}>📊</Text>
+              <View>
+                <Text style={styles.cardTitle}>Velocity</Text>
+                <Text style={styles.cardValue}>+94.2%</Text>
+              </View>
+            </Animated.View>
 
-            {/* Tagline */}
-            <Text style={styles.taglineText}>
-              Autonomous Collaboration &amp; Project OS
-            </Text>
+            {/* Floating Workspace UI Card 2 (Top-Right: AI Copilot) */}
+            <Animated.View
+              style={[
+                styles.floatingCard2,
+                { transform: [{ translateY: cardFloat2 }] },
+              ]}
+            >
+              <View style={styles.aiCardHeader}>
+                <Text style={styles.sparkleIcon}>✨</Text>
+                <View style={styles.activeDot} />
+              </View>
+              <Text style={styles.aiBadgeText}>Nova AI</Text>
+            </Animated.View>
+
+            {/* Floating Workspace UI Card 3 (Bottom-Right: Tasks Done) */}
+            <Animated.View
+              style={[
+                styles.floatingCard3,
+                { transform: [{ translateY: cardFloat1 }] },
+              ]}
+            >
+              <Text style={styles.checkIcon}>✓</Text>
+              <Text style={styles.taskText}>18 / 24 Done</Text>
+            </Animated.View>
+
+            {/* Floating Sparkles */}
+            <Text style={styles.sparkle1}>✦</Text>
+            <Text style={styles.sparkle2}>★</Text>
+            <Text style={styles.sparkle3}>✧</Text>
+
+            {/* Vector Character Mascot (Nova Tech Companion) */}
+            <View style={styles.mascotWrapper}>
+              {/* Antennae */}
+              <View style={styles.antennaeRow}>
+                <View style={styles.antennaStem} />
+                <View style={styles.antennaTip} />
+              </View>
+
+              {/* Robot Head */}
+              <View style={styles.robotHead}>
+                {/* Glossy Curved Visor */}
+                <View style={styles.robotVisor}>
+                  {/* Glowing LED Eyes */}
+                  <Animated.View
+                    style={[
+                      styles.eyeRow,
+                      { transform: [{ scaleY: eyeBlink }] },
+                    ]}
+                  >
+                    <View style={styles.eyeLuminous} />
+                    <View style={styles.mouthSmile} />
+                    <View style={styles.eyeLuminous} />
+                  </Animated.View>
+                </View>
+                {/* Ear Sensors */}
+                <View style={styles.earLeft} />
+                <View style={styles.earRight} />
+              </View>
+
+              {/* Robot Body / Chassis */}
+              <View style={styles.robotBody}>
+                {/* Center Core Reactor */}
+                <View style={styles.reactorCore}>
+                  <Text style={styles.coreLightning}>⚡</Text>
+                </View>
+
+                {/* Floating Robot Hands */}
+                <View style={styles.handLeft} />
+                <View style={styles.handRight} />
+              </View>
+            </View>
           </Animated.View>
         </View>
 
-        {/* Bottom Loading Progress & Footer */}
+        {/* Brand Information */}
+        <Animated.View
+          style={[
+            styles.brandBlock,
+            {
+              opacity: textOpacity,
+              transform: [{ translateY: textTranslateY }],
+            },
+          ]}
+        >
+          {/* Category Chip */}
+          <View style={styles.chipPill}>
+            <View style={styles.liveGreenDot} />
+            <Text style={styles.chipText}>SMART WORKSPACE OS</Text>
+          </View>
+
+          {/* App Title */}
+          <View style={styles.titleRow}>
+            <Text style={styles.titleMain}>MY</Text>
+            <Text style={styles.titleAccent}>APP</Text>
+            <View style={styles.titleDot} />
+          </View>
+
+          {/* Tagline */}
+          <Text style={styles.tagline}>
+            Intelligent Project Management &amp; Team Velocity
+          </Text>
+        </Animated.View>
+
+        {/* Bottom Loading Bar & Status */}
         <Animated.View
           style={[styles.bottomSection, { opacity: progressOpacity }]}
         >
-          {/* Dynamic Progress Capsule Bar */}
           <View style={styles.progressTrack}>
             <Animated.View
               style={[styles.progressFill, { width: progressWidth }]}
             >
-              <View style={styles.progressGlowHead} />
+              <View style={styles.progressGlow} />
             </Animated.View>
           </View>
 
-          {/* Changing Status Text */}
-          <Text style={styles.statusLabel}>{statusText}</Text>
-
-          {/* Version & Build */}
-          <View style={styles.versionRow}>
-            <Text style={styles.versionText}>PRO RELEASE 2.4.0</Text>
-            <Text style={styles.versionDivider}>•</Text>
-            <Text style={styles.versionSecurity}>AI-ENCRYPTED</Text>
-          </View>
+          <Text style={styles.statusText}>{statusText}</Text>
+          <Text style={styles.buildLabel}>V2.4 • FAST &amp; SECURE</Text>
         </Animated.View>
       </TouchableOpacity>
     </Animated.View>
@@ -387,7 +419,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: '#070B19', // Ultra-deep obsidian cosmic navy
+    backgroundColor: '#070B19', // Deep cosmic navy
     zIndex: 99999,
     elevation: 99999,
     overflow: 'hidden',
@@ -396,137 +428,323 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 48,
-    zIndex: 10,
+    paddingVertical: 44,
   },
-  // Ambient Lighting Orbs
-  glowOrbPrimary: {
+  ambientGlowPrimary: {
     position: 'absolute',
-    top: '22%',
+    top: '20%',
     left: width * 0.5 - 140,
     width: 280,
     height: 280,
     borderRadius: 140,
-    backgroundColor: 'rgba(79, 70, 229, 0.32)', // Indigo core
+    backgroundColor: 'rgba(79, 70, 229, 0.35)', // Vibrant indigo
   },
-  glowOrbSecondary: {
+  ambientGlowSecondary: {
     position: 'absolute',
-    top: '30%',
+    top: '32%',
     left: width * 0.5 - 110,
     width: 220,
     height: 220,
     borderRadius: 110,
-    backgroundColor: 'rgba(6, 182, 212, 0.22)', // Electric cyan glow
+    backgroundColor: 'rgba(6, 182, 212, 0.25)', // Neon cyan
   },
-  gridOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'transparent',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.04)',
-  },
-  centerSection: {
+  illustrationSection: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
   },
-  emblemContainer: {
+  illustrationStage: {
+    width: 260,
+    height: 260,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  holoBaseRing: {
+    position: 'absolute',
+    bottom: 14,
     width: 170,
-    height: 170,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  pulseRing: {
-    position: 'absolute',
-    width: 124,
-    height: 124,
-    borderRadius: 62,
-    borderWidth: 1.5,
-    borderColor: 'rgba(99, 102, 241, 0.85)',
-    backgroundColor: 'rgba(79, 70, 229, 0.1)',
-  },
-  pulseRingOuter: {
-    position: 'absolute',
-    width: 124,
-    height: 124,
-    borderRadius: 62,
-    borderWidth: 1,
-    borderColor: 'rgba(6, 182, 212, 0.5)',
-  },
-  logoWrapper: {
-    width: 96,
-    height: 96,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  outerDiamond: {
-    width: 82,
-    height: 82,
-    borderRadius: 24,
-    backgroundColor: '#1E1B4B',
+    height: 42,
+    borderRadius: 21,
     borderWidth: 2,
+    borderColor: 'rgba(99, 102, 241, 0.65)',
+    backgroundColor: 'rgba(79, 70, 229, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  holoInnerPulse: {
+    width: 110,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: 'rgba(6, 182, 212, 0.35)',
+  },
+  // Floating Cards
+  floatingCard1: {
+    position: 'absolute',
+    top: 15,
+    left: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1E1B4B',
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: '#6366F1',
+    shadowColor: '#4F46E5',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 8,
+    gap: 8,
+    zIndex: 10,
+  },
+  cardIcon: {
+    fontSize: 16,
+  },
+  cardTitle: {
+    fontSize: 9,
+    fontWeight: '700',
+    color: '#A5B4FC',
+  },
+  cardValue: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: '#38BDF8',
+  },
+  floatingCard2: {
+    position: 'absolute',
+    top: 25,
+    right: 5,
+    backgroundColor: '#1E1B4B',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: '#38BDF8',
+    shadowColor: '#06B6D4',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 8,
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  aiCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginBottom: 2,
+  },
+  sparkleIcon: {
+    fontSize: 15,
+  },
+  activeDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#10B981',
+  },
+  aiBadgeText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },
+  floatingCard3: {
+    position: 'absolute',
+    bottom: 50,
+    right: -10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#10B981',
+    gap: 6,
+    zIndex: 10,
+  },
+  checkIcon: {
+    color: '#10B981',
+    fontSize: 12,
+    fontWeight: '900',
+  },
+  taskText: {
+    color: '#E2E8F0',
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  sparkle1: {
+    position: 'absolute',
+    top: 5,
+    left: '46%',
+    color: '#38BDF8',
+    fontSize: 18,
+    fontWeight: '900',
+  },
+  sparkle2: {
+    position: 'absolute',
+    bottom: 85,
+    left: 10,
+    color: '#F59E0B',
+    fontSize: 14,
+  },
+  sparkle3: {
+    position: 'absolute',
+    top: 85,
+    right: -8,
+    color: '#A5B4FC',
+    fontSize: 12,
+  },
+  // Mascot Illustration
+  mascotWrapper: {
+    alignItems: 'center',
+    zIndex: 5,
+  },
+  antennaeRow: {
+    alignItems: 'center',
+    marginBottom: -2,
+  },
+  antennaTip: {
+    position: 'absolute',
+    top: -5,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#38BDF8',
+    shadowColor: '#38BDF8',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.9,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  antennaStem: {
+    width: 3,
+    height: 12,
+    backgroundColor: '#6366F1',
+    borderRadius: 2,
+  },
+  robotHead: {
+    width: 86,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: '#1E1B4B',
+    borderWidth: 2.5,
     borderColor: '#6366F1',
     justifyContent: 'center',
     alignItems: 'center',
+    position: 'relative',
     shadowColor: '#4F46E5',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.65,
-    shadowRadius: 20,
-    elevation: 16,
-    transform: [{ rotate: '45deg' }],
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.5,
+    shadowRadius: 12,
+    elevation: 10,
   },
-  innerDiamond: {
-    width: 58,
-    height: 58,
-    borderRadius: 16,
-    backgroundColor: '#4F46E5',
+  robotVisor: {
+    width: 66,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#070B19',
     borderWidth: 1.5,
     borderColor: '#38BDF8',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  monogramBox: {
-    transform: [{ rotate: '-45deg' }],
-    justifyContent: 'center',
+  eyeRow: {
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    width: 44,
+    paddingHorizontal: 4,
   },
-  monogramSymbol: {
-    fontSize: 28,
-    color: '#FFFFFF',
-    fontWeight: '900',
-    textShadowColor: 'rgba(56, 189, 248, 0.8)',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 10,
+  eyeLuminous: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#38BDF8',
+    shadowColor: '#38BDF8',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 6,
   },
-  satelliteSparkle: {
+  mouthSmile: {
+    width: 12,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: 'rgba(56, 189, 248, 0.8)',
+  },
+  earLeft: {
     position: 'absolute',
-    top: 2,
-    right: 4,
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    backgroundColor: '#06B6D4',
+    left: -7,
+    width: 8,
+    height: 18,
+    borderRadius: 4,
+    backgroundColor: '#38BDF8',
+  },
+  earRight: {
+    position: 'absolute',
+    right: -7,
+    width: 8,
+    height: 18,
+    borderRadius: 4,
+    backgroundColor: '#38BDF8',
+  },
+  robotBody: {
+    width: 72,
+    height: 54,
+    borderRadius: 22,
+    backgroundColor: '#1E1B4B',
     borderWidth: 2,
-    borderColor: '#070B19',
+    borderColor: '#4F46E5',
+    marginTop: 6,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 8,
+    position: 'relative',
   },
-  satelliteText: {
-    fontSize: 13,
+  reactorCore: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#4F46E5',
+    borderWidth: 1.5,
+    borderColor: '#38BDF8',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#38BDF8',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 8,
+  },
+  coreLightning: {
+    fontSize: 14,
     color: '#FFFFFF',
     fontWeight: '900',
   },
-  textBlock: {
+  handLeft: {
+    position: 'absolute',
+    left: -9,
+    width: 12,
+    height: 18,
+    borderRadius: 6,
+    backgroundColor: '#6366F1',
+  },
+  handRight: {
+    position: 'absolute',
+    right: -9,
+    width: 12,
+    height: 18,
+    borderRadius: 6,
+    backgroundColor: '#6366F1',
+  },
+  // Typography Block
+  brandBlock: {
     alignItems: 'center',
     paddingHorizontal: 24,
+    marginTop: -8,
   },
-  miniPill: {
+  chipPill: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(99, 102, 241, 0.18)',
@@ -535,20 +753,20 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: 'rgba(99, 102, 241, 0.45)',
-    marginBottom: 14,
+    marginBottom: 10,
   },
-  pillLiveDot: {
+  liveGreenDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
     backgroundColor: '#10B981',
     marginRight: 8,
   },
-  miniPillText: {
+  chipText: {
     fontSize: 10,
     fontWeight: '800',
     color: '#A5B4FC',
-    letterSpacing: 1.5,
+    letterSpacing: 1.4,
   },
   titleRow: {
     flexDirection: 'row',
@@ -557,18 +775,18 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   titleMain: {
-    fontSize: 38,
+    fontSize: 36,
     fontWeight: '900',
     color: '#FFFFFF',
     letterSpacing: 2,
   },
   titleAccent: {
-    fontSize: 38,
+    fontSize: 36,
     fontWeight: '900',
     color: '#38BDF8',
     letterSpacing: 2,
   },
-  titlePeriod: {
+  titleDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
@@ -577,11 +795,11 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     marginBottom: 8,
   },
-  taglineText: {
+  tagline: {
     fontSize: 13,
     color: 'rgba(226, 232, 240, 0.72)',
     fontWeight: '500',
-    letterSpacing: 0.8,
+    letterSpacing: 0.6,
     textAlign: 'center',
   },
   bottomSection: {
@@ -590,7 +808,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
   },
   progressTrack: {
-    width: width * 0.62,
+    width: width * 0.65,
     height: 4,
     backgroundColor: 'rgba(255, 255, 255, 0.12)',
     borderRadius: 2,
@@ -603,7 +821,7 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     position: 'relative',
   },
-  progressGlowHead: {
+  progressGlow: {
     position: 'absolute',
     right: 0,
     top: -2,
@@ -611,37 +829,18 @@ const styles = StyleSheet.create({
     width: 8,
     backgroundColor: '#FFFFFF',
     borderRadius: 4,
-    shadowColor: '#38BDF8',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 1,
-    shadowRadius: 6,
   },
-  statusLabel: {
+  statusText: {
     fontSize: 11,
     color: 'rgba(203, 213, 225, 0.7)',
     fontWeight: '600',
     letterSpacing: 0.4,
-    marginBottom: 16,
+    marginBottom: 6,
   },
-  versionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  versionText: {
-    fontSize: 10,
-    color: 'rgba(148, 163, 184, 0.5)',
+  buildLabel: {
+    fontSize: 9,
+    color: 'rgba(148, 163, 184, 0.45)',
     fontWeight: '700',
-    letterSpacing: 1.2,
-  },
-  versionDivider: {
-    color: 'rgba(148, 163, 184, 0.4)',
-    fontSize: 10,
-  },
-  versionSecurity: {
-    fontSize: 10,
-    color: 'rgba(56, 189, 248, 0.65)',
-    fontWeight: '700',
-    letterSpacing: 1.2,
+    letterSpacing: 1.4,
   },
 });
