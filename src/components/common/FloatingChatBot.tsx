@@ -37,7 +37,13 @@ const INITIAL_MESSAGES: BotMessage[] = [
   },
 ];
 
-export const FloatingChatBot: React.FC = () => {
+interface FloatingChatBotProps {
+  visible?: boolean;
+}
+
+export const FloatingChatBot: React.FC<FloatingChatBotProps> = ({
+  visible = true,
+}) => {
   const insets = useSafeAreaInsets();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<BotMessage[]>(INITIAL_MESSAGES);
@@ -52,6 +58,9 @@ export const FloatingChatBot: React.FC = () => {
 
   // Pulse animation for the floating button when closed
   useEffect(() => {
+    if (!visible) {
+      return;
+    }
     if (!isOpen) {
       const pulseLoop = Animated.loop(
         Animated.sequence([
@@ -70,7 +79,7 @@ export const FloatingChatBot: React.FC = () => {
       pulseLoop.start();
       return () => pulseLoop.stop();
     }
-  }, [isOpen, pulseAnim]);
+  }, [isOpen, pulseAnim, visible]);
 
   const toggleChat = () => {
     if (isOpen) {
@@ -214,6 +223,10 @@ export const FloatingChatBot: React.FC = () => {
       scrollToBottom();
     }, 900);
   };
+
+  if (!visible) {
+    return null;
+  }
 
   return (
     <>

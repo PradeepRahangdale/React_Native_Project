@@ -24,11 +24,21 @@ const TAB_SCREENS: Array<{ name: ScreenName; label: string; icon: string }> = [
   { name: 'Profile', label: 'Profile', icon: '👤' },
 ];
 
-export const AppNavigator: React.FC = () => {
+interface AppNavigatorProps {
+  isSplashVisible?: boolean;
+}
+
+const BOT_ALLOWED_SCREENS: ScreenName[] = ['Home', 'Projects'];
+
+export const AppNavigator: React.FC<AppNavigatorProps> = ({
+  isSplashVisible = false,
+}) => {
   const insets = useSafeAreaInsets();
   const { currentScreen, navigate } = useNavigation();
 
   const isTabScreen = TAB_SCREENS.some(tab => tab.name === currentScreen);
+  const shouldShowBot =
+    !isSplashVisible && BOT_ALLOWED_SCREENS.includes(currentScreen);
 
   const renderScreen = () => {
     switch (currentScreen) {
@@ -97,8 +107,8 @@ export const AppNavigator: React.FC = () => {
         </View>
       )}
 
-      {/* Floating Corner AI Chatbot Widget */}
-      {currentScreen !== 'ChatDetail' && <FloatingChatBot />}
+      {/* Floating Corner AI Chatbot Widget (visible on Home & Projects, hidden during Splash and in 1-on-1 Chat) */}
+      {shouldShowBot && <FloatingChatBot />}
     </View>
   );
 };

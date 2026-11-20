@@ -29,7 +29,7 @@ function App() {
       />
       <View style={styles.container}>
         <NavigationProvider initialScreen="Home">
-          <AppNavigator />
+          <AppNavigator isSplashVisible={isSplashVisible} />
         </NavigationProvider>
 
         {isSplashVisible && (
