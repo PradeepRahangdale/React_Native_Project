@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import {
-  ActivityIndicator,
   Animated,
   Easing,
   StatusBar,
@@ -15,13 +14,16 @@ interface SplashScreenProps {
 }
 
 export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
-  // Exit fade & scale
+  // Master exit & entrance transitions
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const contentScale = useRef(new Animated.Value(0.92)).current;
   const contentOpacity = useRef(new Animated.Value(0)).current;
+  const logoTranslateY = useRef(new Animated.Value(14)).current;
 
-  // Subtle logo entrance
-  const logoTranslateY = useRef(new Animated.Value(12)).current;
+  // Custom loader animations
+  const spinAnim = useRef(new Animated.Value(0)).current;
+  const pulseAnim = useRef(new Animated.Value(0.6)).current;
+  const progressAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     // 1. Entrance animation
@@ -45,12 +47,52 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
       }),
     ]).start();
 
-    // 2. Auto dismiss after 2.0 seconds
+    // 2. Custom continuous orbital rotation
+    const spinLoop = Animated.loop(
+      Animated.timing(spinAnim, {
+        toValue: 1,
+        duration: 900,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      }),
+    );
+    spinLoop.start();
+
+    // 3. Central core pulse
+    const pulseLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 600,
+          easing: Easing.inOut(Easing.quad),
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 0.4,
+          duration: 600,
+          easing: Easing.inOut(Easing.quad),
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+    pulseLoop.start();
+
+    // 4. Smooth progress runner (0% to 100% over 1.8s)
+    Animated.timing(progressAnim, {
+      toValue: 1,
+      duration: 1800,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+
+    // 5. Auto dismiss after 2.1 seconds
     const exitTimer = setTimeout(() => {
       handleExit();
-    }, 2000);
+    }, 2100);
 
     return () => {
+      spinLoop.stop();
+      pulseLoop.stop();
       clearTimeout(exitTimer);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -66,6 +108,16 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
       onFinish();
     });
   };
+
+  const spinInterpolate = spinAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+
+  const progressTranslateX = progressAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-140, 0],
+  });
 
   return (
     <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
@@ -103,10 +155,32 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
             <Text style={styles.brandSubtitle}>WORKSPACE PLATFORM</Text>
           </View>
 
-          {/* Clean Native Loading Spinner */}
-          <View style={styles.loaderContainer}>
-            <ActivityIndicator size="small" color="#FFFFFF" />
-            <Text style={styles.loadingText}>Loading workspace...</Text>
+          {/* Bespoke Orbital Loader & Progress Runway */}
+          <View style={styles.loaderModule}>
+            {/* Spinning Orbit Ring with Center Core Dot */}
+            <View style={styles.orbitWrapper}>
+              <Animated.View
+                style={[
+                  styles.orbitRing,
+                  { transform: [{ rotate: spinInterpolate }] },
+                ]}
+              />
+              <Animated.View
+                style={[styles.orbitCoreDot, { opacity: pulseAnim }]}
+              />
+            </View>
+
+            {/* Hairline Progress Track */}
+            <View style={styles.progressTrack}>
+              <Animated.View
+                style={[
+                  styles.progressFill,
+                  { transform: [{ translateX: progressTranslateX }] },
+                ]}
+              />
+            </View>
+
+            <Text style={styles.loaderStatusLabel}>INITIALIZING WORKSPACE</Text>
           </View>
         </Animated.View>
 
@@ -195,17 +269,57 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
-  loaderContainer: {
-    marginTop: 36,
+
+  // Bespoke Orbital Loader & Progress Runway
+  loaderModule: {
+    marginTop: 40,
     alignItems: 'center',
-    gap: 10,
+    gap: 14,
   },
-  loadingText: {
-    fontSize: 12,
-    fontWeight: '600',
+  orbitWrapper: {
+    width: 34,
+    height: 34,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  orbitRing: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    borderWidth: 2.5,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderTopColor: '#FFFFFF',
+    borderRightColor: '#FFFFFF',
+  },
+  orbitCoreDot: {
+    position: 'absolute',
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#FFFFFF',
+  },
+  progressTrack: {
+    width: 140,
+    height: 3,
+    borderRadius: 1.5,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    overflow: 'hidden',
+  },
+  progressFill: {
+    width: 140,
+    height: 3,
+    borderRadius: 1.5,
+    backgroundColor: '#FFFFFF',
+  },
+  loaderStatusLabel: {
+    fontSize: 10,
+    fontWeight: '800',
     color: 'rgba(255, 255, 255, 0.85)',
-    letterSpacing: 0.6,
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
   },
+
   footerContainer: {
     alignItems: 'center',
     gap: 6,
