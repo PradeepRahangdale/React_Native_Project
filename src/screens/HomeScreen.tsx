@@ -15,6 +15,27 @@ import { colors } from '../constants';
 import { useAuth } from '../context';
 import { useNavigation } from '../navigation';
 
+type DashboardTab = 'overview' | 'tasks' | 'team';
+
+interface TodayTask {
+  id: string;
+  title: string;
+  assignee: string;
+  assigneeInitials: string;
+  priority: 'P1' | 'P2' | 'P3';
+  dueTime: string;
+  done: boolean;
+}
+
+interface TeamMember {
+  id: string;
+  name: string;
+  initials: string;
+  role: string;
+  status: string;
+  online: boolean;
+}
+
 interface WorkstreamItem {
   id: string;
   title: string;
@@ -32,6 +53,80 @@ const CATEGORIES = [
   { id: 'In Progress', label: 'In Progress', count: 4 },
   { id: 'Priority', label: 'High Priority', count: 3 },
   { id: 'Completed', label: 'Completed', count: 5 },
+];
+
+const INITIAL_TODAY_TASKS: TodayTask[] = [
+  {
+    id: 't1',
+    title: 'Review Figma design tokens v2.4 spec',
+    assignee: 'Alice Smith',
+    assigneeInitials: 'AS',
+    priority: 'P1',
+    dueTime: '11:30 AM',
+    done: true,
+  },
+  {
+    id: 't2',
+    title: 'Verify mTLS API Gateway endpoint routing',
+    assignee: 'John Doe',
+    assigneeInitials: 'JD',
+    priority: 'P1',
+    dueTime: '2:00 PM',
+    done: false,
+  },
+  {
+    id: 't3',
+    title: 'Deploy staging v1.4 to test cluster',
+    assignee: 'Robert King',
+    assigneeInitials: 'RK',
+    priority: 'P2',
+    dueTime: '4:30 PM',
+    done: false,
+  },
+  {
+    id: 't4',
+    title: 'Validate PostgreSQL replica failover latency',
+    assignee: 'Maya Lin',
+    assigneeInitials: 'ML',
+    priority: 'P3',
+    dueTime: 'Tomorrow',
+    done: false,
+  },
+];
+
+const TEAM_MEMBERS: TeamMember[] = [
+  {
+    id: '1',
+    name: 'Alice Smith',
+    initials: 'AS',
+    role: 'UI/UX Lead',
+    status: 'Pushed design tokens',
+    online: true,
+  },
+  {
+    id: '2',
+    name: 'Robert King',
+    initials: 'RK',
+    role: 'Backend Architect',
+    status: 'Staging cluster green',
+    online: true,
+  },
+  {
+    id: '3',
+    name: 'Maya Lin',
+    initials: 'ML',
+    role: 'Database Engineer',
+    status: 'Indexing query plans',
+    online: false,
+  },
+  {
+    id: '4',
+    name: 'Tom Nelson',
+    initials: 'TN',
+    role: 'QA Automation',
+    status: 'Verified E2E suite',
+    online: false,
+  },
 ];
 
 const WORKSTREAMS: WorkstreamItem[] = [
@@ -85,11 +180,14 @@ export const HomeScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const { navigate } = useNavigation();
   const { user } = useAuth();
+
+  const [activeTab, setActiveTab] = useState<DashboardTab>('overview');
+  const [todayTasks, setTodayTasks] = useState<TodayTask[]>(INITIAL_TODAY_TASKS);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [isFocused, setIsFocused] = useState(false);
 
-  // Dynamic Time-of-Day Greeting (Human Design Touch)
+  // Dynamic Time-of-Day Greeting
   const greeting = useMemo(() => {
     const hour = new Date().getHours();
     if (hour < 12) {
@@ -102,6 +200,15 @@ export const HomeScreen: React.FC = () => {
   }, []);
 
   const isSearching = searchQuery.trim().length > 0;
+
+  // Toggle tasks in local checklist
+  const handleToggleTask = (taskId: string) => {
+    setTodayTasks(prev =>
+      prev.map(t => (t.id === taskId ? { ...t, done: !t.done } : t)),
+    );
+  };
+
+  const completedCount = todayTasks.filter(t => t.done).length;
 
   // Filter activities by query and category
   const filteredWorkstreams = useMemo(() => {
@@ -143,14 +250,14 @@ export const HomeScreen: React.FC = () => {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Top Executive Header */}
+        {/* Top Header */}
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.profileMeta}
             activeOpacity={0.8}
             onPress={() => navigate('Profile')}
           >
-            {/* Precision Avatar with Ring */}
+            {/* Precision Avatar */}
             <View style={styles.avatarRing}>
               <View style={styles.avatarCore}>
                 <Text style={styles.avatarInitials}>
@@ -181,23 +288,87 @@ export const HomeScreen: React.FC = () => {
             </View>
           </TouchableOpacity>
 
-          {/* Quick Header Actions */}
+          {/* Quick Actions (Notifications & AI) */}
           <View style={styles.headerRightActions}>
+            <TouchableOpacity
+              style={styles.headerAIPill}
+              activeOpacity={0.8}
+              onPress={() => navigate('AIAssistant')}
+            >
+              <Text style={styles.headerAIGlyph}>◈</Text>
+              <Text style={styles.headerAIText}>Copilot</Text>
+            </TouchableOpacity>
+
             <TouchableOpacity
               style={styles.iconActionButton}
               activeOpacity={0.7}
               onPress={() => navigate('Notifications')}
             >
-              {/* Clean Vector Bell Icon */}
               <View style={styles.vectorBellStem} />
               <View style={styles.vectorBellBody} />
               <View style={styles.vectorBellRinger} />
-              {/* Unread Indicator */}
               <View style={styles.notificationCountPip}>
                 <Text style={styles.notificationCountText}>3</Text>
               </View>
             </TouchableOpacity>
           </View>
+        </View>
+
+        {/* Dashboard View Switcher Segment */}
+        <View style={styles.segmentedContainer}>
+          <TouchableOpacity
+            style={[
+              styles.segmentTab,
+              activeTab === 'overview' && styles.segmentTabActive,
+            ]}
+            onPress={() => setActiveTab('overview')}
+            activeOpacity={0.8}
+          >
+            <Text
+              style={[
+                styles.segmentTabText,
+                activeTab === 'overview' && styles.segmentTabTextActive,
+              ]}
+            >
+              Overview
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.segmentTab,
+              activeTab === 'tasks' && styles.segmentTabActive,
+            ]}
+            onPress={() => setActiveTab('tasks')}
+            activeOpacity={0.8}
+          >
+            <Text
+              style={[
+                styles.segmentTabText,
+                activeTab === 'tasks' && styles.segmentTabTextActive,
+              ]}
+            >
+              Priorities ({todayTasks.length - completedCount})
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.segmentTab,
+              activeTab === 'team' && styles.segmentTabActive,
+            ]}
+            onPress={() => setActiveTab('team')}
+            activeOpacity={0.8}
+          >
+            <Text
+              style={[
+                styles.segmentTabText,
+                activeTab === 'team' && styles.segmentTabTextActive,
+              ]}
+            >
+              Team Pulse
+            </Text>
+          </TouchableOpacity>
         </View>
 
         {/* Command Search Bar */}
@@ -208,7 +379,6 @@ export const HomeScreen: React.FC = () => {
               isFocused && styles.searchBarFocused,
             ]}
           >
-            {/* Vector Search Glyph */}
             <View style={styles.searchIconGlyph}>
               <View style={styles.searchCircle} />
               <View style={styles.searchHandle} />
@@ -240,7 +410,7 @@ export const HomeScreen: React.FC = () => {
           </View>
 
           {/* Quick Search Chips */}
-          {!isSearching && (
+          {!isSearching && activeTab === 'overview' && (
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -288,259 +458,164 @@ export const HomeScreen: React.FC = () => {
           )}
         </View>
 
-        {/* Live Search Results View */}
-        {isSearching ? (
-          <View style={styles.searchResultsSection}>
-            <View style={styles.searchResultsHeader}>
-              <Text style={styles.searchResultsTitle}>
-                Matches for &ldquo;{searchQuery}&rdquo;
-              </Text>
-              <Badge
-                label={`${filteredWorkstreams.length} found`}
-                variant={filteredWorkstreams.length > 0 ? 'primary' : 'accent'}
-              />
-            </View>
-
-            {filteredWorkstreams.length === 0 ? (
-              <Card style={styles.emptyResultsCard}>
-                <View style={styles.emptyIconCircle}>
-                  <View style={styles.searchCircleLarge} />
-                  <View style={styles.searchHandleLarge} />
-                </View>
-                <Text style={styles.emptyTitle}>No matching workstreams</Text>
-                <Text style={styles.emptySubtitle}>
-                  Try keywords like &ldquo;Design&rdquo;, &ldquo;API&rdquo;,
-                  &ldquo;Cluster&rdquo;, or &ldquo;Audit&rdquo;.
-                </Text>
-                <TouchableOpacity
-                  style={styles.resetSearchBtn}
-                  onPress={() => setSearchQuery('')}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.resetSearchBtnText}>Reset Query</Text>
-                </TouchableOpacity>
-              </Card>
-            ) : (
-              <View style={styles.resultsList}>
-                {filteredWorkstreams.map(item => (
-                  <TouchableOpacity
-                    key={item.id}
-                    activeOpacity={0.85}
-                    onPress={() =>
-                      navigate('ProjectDetail', {
-                        id: item.id,
-                        title: item.title,
-                        subtitle: item.discipline,
-                        progress: item.progress,
-                        badge: item.badge,
-                      })
-                    }
-                  >
-                    <Card style={styles.workstreamCard}>
-                      <View style={styles.cardTopRow}>
-                        <View style={styles.priorityPill}>
-                          <Text style={styles.priorityCodeText}>
-                            {item.priorityCode}
-                          </Text>
-                        </View>
-                        <View style={styles.cardHeaderInfo}>
-                          <Text style={styles.workstreamTitle}>
-                            {item.title}
-                          </Text>
-                          <Text style={styles.workstreamDiscipline}>
-                            {item.discipline}
-                          </Text>
-                        </View>
-                        <Badge label={item.badge} variant={item.badgeVariant} />
-                      </View>
-
-                      <View style={styles.cardBottomRow}>
-                        <View style={styles.progressTrackBar}>
-                          <View
-                            style={[
-                              styles.progressFillBar,
-                              {
-                                width: `${Math.round(item.progress * 100)}%`,
-                                backgroundColor:
-                                  item.progress === 1.0
-                                    ? colors.success
-                                    : colors.primary,
-                              },
-                            ]}
-                          />
-                        </View>
-                        <View style={styles.cardMetaRow}>
-                          <View style={styles.leadAvatarMini}>
-                            <Text style={styles.leadAvatarMiniText}>
-                              {item.leadInitials}
-                            </Text>
-                          </View>
-                          <Text style={styles.cardTimeText}>{item.time}</Text>
-                        </View>
-                      </View>
-                    </Card>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
-          </View>
-        ) : (
-          /* Main Dashboard Feed */
+        {/* TAB CONTENT 1: OVERVIEW */}
+        {activeTab === 'overview' && (
           <>
-            {/* Executive Hero Pulse Card (Obsidian & Iris Glassmorphic) */}
-            <TouchableOpacity
-              style={styles.heroExecutiveCard}
-              activeOpacity={0.9}
-              onPress={() => navigate('Projects')}
-            >
-              {/* Ambient Sheen Layer */}
+            {/* Command Center Executive Hero Card */}
+            <View style={styles.heroCommandCard}>
               <View style={styles.heroAuraBackdrop} />
 
               <View style={styles.heroTopMeta}>
                 <View style={styles.heroLivePill}>
                   <View style={styles.livePulseGreen} />
-                  <Text style={styles.heroLivePillText}>SPRINT 14 ACTIVE</Text>
+                  <Text style={styles.heroLivePillText}>SPRINT 14 • ACTIVE</Text>
                 </View>
-                <View style={styles.heroTimeRemainingPill}>
-                  <Text style={styles.heroTimeText}>4 DAYS LEFT</Text>
+                <Text style={styles.heroDaysAheadPill}>3 DAYS AHEAD</Text>
+              </View>
+
+              {/* Progress Gauge & Title */}
+              <View style={styles.heroMetricsCluster}>
+                <View style={styles.heroGaugeCircle}>
+                  <Text style={styles.heroGaugePercent}>78%</Text>
+                  <Text style={styles.heroGaugeLabel}>ON TRACK</Text>
+                </View>
+
+                <View style={styles.heroTitlesContainer}>
+                  <Text style={styles.heroMainTitle}>Q4 Launch Velocity</Text>
+                  <Text style={styles.heroSubtitleText}>
+                    18 of 24 milestones achieved with zero blockers.
+                  </Text>
                 </View>
               </View>
 
-              <Text style={styles.heroMainTitle}>Quarterly Launch Targets</Text>
-              <Text style={styles.heroSubtitleText}>
-                18 of 24 milestones achieved. Team is tracking 3 days ahead of schedule.
-              </Text>
-
-              {/* Segmented Milestone Progress Bar */}
-              <View style={styles.heroProgressSection}>
-                <View style={styles.segmentedTrack}>
-                  <View style={styles.segmentQuarterActive} />
-                  <View style={styles.segmentQuarterActive} />
-                  <View style={styles.segmentQuarterActive} />
-                  <View style={styles.segmentQuarterInactive} />
-                </View>
-                <View style={styles.heroProgressLabels}>
-                  <Text style={styles.heroPercentText}>75% Completed</Text>
-                  <Text style={styles.heroStageText}>Phase 3 of 4</Text>
-                </View>
+              {/* Segmented Timeline Bar */}
+              <View style={styles.segmentedTrack}>
+                <View style={styles.segmentActive} />
+                <View style={styles.segmentActive} />
+                <View style={styles.segmentActive} />
+                <View style={styles.segmentInactive} />
               </View>
 
-              {/* Action Button Row */}
+              {/* Quick Actions Row */}
               <View style={styles.heroActionFooter}>
-                <View style={styles.heroTeamAvatarStack}>
-                  <View style={[styles.miniStackAvatar, styles.stack1]}>
-                    <Text style={styles.miniStackText}>JD</Text>
-                  </View>
-                  <View style={[styles.miniStackAvatar, styles.stack2]}>
-                    <Text style={styles.miniStackText}>AK</Text>
-                  </View>
-                  <View style={[styles.miniStackAvatar, styles.stack3]}>
-                    <Text style={styles.miniStackText}>MR</Text>
-                  </View>
-                  <View style={[styles.miniStackAvatar, styles.stack4]}>
-                    <Text style={styles.miniStackText}>+5</Text>
-                  </View>
-                </View>
+                <TouchableOpacity
+                  style={styles.heroActionPill}
+                  onPress={() => navigate('Projects')}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.heroActionPillText}>Projects ›</Text>
+                </TouchableOpacity>
 
-                <View style={styles.heroCtaPill}>
-                  <Text style={styles.heroCtaText}>View Roadmap</Text>
-                  <Text style={styles.heroCtaArrow}>→</Text>
-                </View>
+                <TouchableOpacity
+                  style={styles.heroActionPill}
+                  onPress={() => navigate('Analytics')}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.heroActionPillText}>Analytics ›</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.heroActionPill, styles.heroActionPillHighlight]}
+                  onPress={() => navigate('AIAssistant')}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.heroActionHighlightText}>Ask Nova ◈</Text>
+                </TouchableOpacity>
               </View>
-            </TouchableOpacity>
-
-            {/* 2026 Bento Grid Section */}
-            <View style={styles.bentoSectionHeader}>
-              <Text style={styles.bentoSectionTitle}>Workspace Intelligence</Text>
-              <TouchableOpacity onPress={() => navigate('Analytics')}>
-                <Text style={styles.bentoLinkText}>Telemetry ›</Text>
-              </TouchableOpacity>
             </View>
 
-            <View style={styles.bentoGrid}>
-              {/* Bento Card 1: Velocity Sparkline */}
+            {/* Quick 4-Way Launchpad Matrix */}
+            <View style={styles.launchpadGrid}>
               <TouchableOpacity
-                style={styles.bentoCardHalf}
-                activeOpacity={0.85}
-                onPress={() => navigate('Analytics')}
-              >
-                <View style={styles.bentoHeaderRow}>
-                  <Text style={styles.bentoMicroCategory}>VELOCITY</Text>
-                  <View style={styles.bentoLiveDot} />
-                </View>
-                <Text style={styles.bentoBigMetric}>+18.4%</Text>
-                {/* Mini Vector Bar Chart */}
-                <View style={styles.bentoChartContainer}>
-                  <View style={[styles.bentoBar, styles.bBar1]} />
-                  <View style={[styles.bentoBar, styles.bBar2]} />
-                  <View style={[styles.bentoBar, styles.bBar3]} />
-                  <View style={[styles.bentoBar, styles.bBar4]} />
-                  <View style={[styles.bentoBar, styles.bBar5]} />
-                </View>
-                <Text style={styles.bentoSubText}>Weekly cadence</Text>
-              </TouchableOpacity>
-
-              {/* Bento Card 2: Active Matrix */}
-              <TouchableOpacity
-                style={styles.bentoCardHalf}
+                style={styles.launchpadCard}
                 activeOpacity={0.85}
                 onPress={() => navigate('Projects')}
               >
-                <View style={styles.bentoHeaderRow}>
-                  <Text style={styles.bentoMicroCategory}>PROJECTS</Text>
-                  <View style={[styles.bentoLiveDot, styles.dotCyan]} />
+                <View style={[styles.launchpadIconBox, styles.iconBoxBlue]}>
+                  <View style={styles.vectorFolderIcon} />
                 </View>
-                <Text style={styles.bentoBigMetric}>12 Active</Text>
-                {/* Visual Pipeline Dots */}
-                <View style={styles.pipelineDotRow}>
-                  <View style={[styles.pipelineDot, styles.pipeComplete]} />
-                  <View style={[styles.pipelineDot, styles.pipeComplete]} />
-                  <View style={[styles.pipelineDot, styles.pipeComplete]} />
-                  <View style={[styles.pipelineDot, styles.pipeActive]} />
-                  <View style={[styles.pipelineDot, styles.pipePending]} />
+                <Text style={styles.launchpadTitle}>Projects</Text>
+                <Text style={styles.launchpadSub}>12 Active</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.launchpadCard}
+                activeOpacity={0.85}
+                onPress={() => navigate('Analytics')}
+              >
+                <View style={[styles.launchpadIconBox, styles.iconBoxIndigo]}>
+                  <View style={styles.vectorChartIcon}>
+                    <View style={styles.vBar1} />
+                    <View style={styles.vBar2} />
+                    <View style={styles.vBar3} />
+                  </View>
                 </View>
-                <Text style={styles.bentoSubText}>2 pending review</Text>
+                <Text style={styles.launchpadTitle}>Analytics</Text>
+                <Text style={styles.launchpadSub}>+18.4% Pace</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.launchpadCard}
+                activeOpacity={0.85}
+                onPress={() => navigate('Messages')}
+              >
+                <View style={[styles.launchpadIconBox, styles.iconBoxCyan]}>
+                  <View style={styles.vectorChatIcon} />
+                </View>
+                <Text style={styles.launchpadTitle}>Messages</Text>
+                <Text style={styles.launchpadSub}>2 Unread</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.launchpadCard}
+                activeOpacity={0.85}
+                onPress={() => navigate('AIAssistant')}
+              >
+                <View style={[styles.launchpadIconBox, styles.iconBoxPurple]}>
+                  <Text style={styles.vectorAIGlyph}>◈</Text>
+                </View>
+                <Text style={styles.launchpadTitle}>Nova Copilot</Text>
+                <Text style={styles.launchpadSub}>Live Intel</Text>
               </TouchableOpacity>
             </View>
 
-            {/* Bento Card 3: Nova Copilot Insight (Integrated, Not Redundant) */}
+            {/* Nova AI Dynamic Intelligence Capsule */}
             <TouchableOpacity
-              style={styles.bentoInsightCard}
+              style={styles.copilotBriefingCard}
               activeOpacity={0.85}
               onPress={() => navigate('AIAssistant')}
             >
-              <View style={styles.insightHeaderRow}>
-                <View style={styles.insightBadge}>
-                  <Text style={styles.insightGlyph}>◈</Text>
-                  <Text style={styles.insightBadgeText}>NOVA BRIEFING</Text>
+              <View style={styles.copilotHeaderRow}>
+                <View style={styles.copilotBadge}>
+                  <Text style={styles.copilotGlyph}>◈</Text>
+                  <Text style={styles.copilotBadgeText}>NOVA BRIEFING</Text>
                 </View>
-                <Text style={styles.insightTime}>Generated 10m ago</Text>
+                <Text style={styles.copilotTimeText}>Generated 12m ago</Text>
               </View>
-              <Text style={styles.insightBodyText}>
-                &ldquo;3 pull requests awaiting review in API Gateway. Database replicas are healthy with 0 failover alerts.&rdquo;
+              <Text style={styles.copilotBodyText}>
+                &ldquo;All health checks across staging v1.4 are green. Staging latency dropped by 18ms. 3 PRs ready for sign-off.&rdquo;
               </Text>
-              <View style={styles.insightActionRow}>
-                <Text style={styles.insightActionText}>Ask Nova Copilot</Text>
-                <Text style={styles.insightActionChevron}>›</Text>
+              <View style={styles.copilotActionRow}>
+                <Text style={styles.copilotActionText}>Open Copilot Discussion</Text>
+                <Text style={styles.copilotActionChevron}>→</Text>
               </View>
             </TouchableOpacity>
 
             {/* Active Workstreams Section */}
-            <View style={styles.workstreamSectionHeader}>
-              <View style={styles.workstreamHeaderLeft}>
-                <Text style={styles.workstreamSectionTitle}>Active Workstreams</Text>
-                <View style={styles.workstreamBadgeCount}>
-                  <Text style={styles.workstreamBadgeText}>
+            <View style={styles.sectionHeader}>
+              <View style={styles.sectionHeaderLeft}>
+                <Text style={styles.sectionTitle}>Active Workstreams</Text>
+                <View style={styles.badgeCountPill}>
+                  <Text style={styles.badgeCountText}>
                     {filteredWorkstreams.length}
                   </Text>
                 </View>
               </View>
               <TouchableOpacity onPress={() => navigate('Projects')}>
-                <Text style={styles.viewAllText}>View All ›</Text>
+                <Text style={styles.sectionActionText}>View All ›</Text>
               </TouchableOpacity>
             </View>
 
-            {/* Workstreams List */}
             <View style={styles.workstreamsList}>
               {filteredWorkstreams.map(item => (
                 <TouchableOpacity
@@ -609,6 +684,148 @@ export const HomeScreen: React.FC = () => {
             </View>
           </>
         )}
+
+        {/* TAB CONTENT 2: PRIORITIES CHECKLIST */}
+        {activeTab === 'tasks' && (
+          <View style={styles.tasksTabContainer}>
+            <View style={styles.checklistSummaryBox}>
+              <View>
+                <Text style={styles.summaryTitle}>Daily Focus Checklist</Text>
+                <Text style={styles.summarySubtitle}>
+                  {completedCount} of {todayTasks.length} tasks completed today
+                </Text>
+              </View>
+              <View style={styles.summaryPercentBadge}>
+                <Text style={styles.summaryPercentText}>
+                  {Math.round((completedCount / todayTasks.length) * 100)}%
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.tasksListGroup}>
+              {todayTasks.map(task => (
+                <TouchableOpacity
+                  key={task.id}
+                  style={[styles.taskItemCard, task.done && styles.taskItemCardDone]}
+                  activeOpacity={0.8}
+                  onPress={() => handleToggleTask(task.id)}
+                >
+                  <View
+                    style={[
+                      styles.taskCheckbox,
+                      task.done && styles.taskCheckboxActive,
+                    ]}
+                  >
+                    {task.done && <Text style={styles.checkmarkGlyph}>✓</Text>}
+                  </View>
+
+                  <View style={styles.taskInfoCol}>
+                    <Text
+                      style={[
+                        styles.taskTitleText,
+                        task.done && styles.taskTitleTextDone,
+                      ]}
+                    >
+                      {task.title}
+                    </Text>
+                    <View style={styles.taskMetaRow}>
+                      <View
+                        style={[
+                          styles.taskPriorityPill,
+                          task.priority === 'P1' && styles.priorityP1,
+                          task.priority === 'P2' && styles.priorityP2,
+                        ]}
+                      >
+                        <Text style={styles.taskPriorityText}>
+                          {task.priority}
+                        </Text>
+                      </View>
+                      <Text style={styles.taskDueText}>Due {task.dueTime}</Text>
+                      <View style={styles.taskAssigneeBadge}>
+                        <Text style={styles.taskAssigneeText}>
+                          {task.assigneeInitials}
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <TouchableOpacity
+              style={styles.openAllProjectsBtn}
+              activeOpacity={0.85}
+              onPress={() => navigate('Projects')}
+            >
+              <Text style={styles.openAllProjectsText}>
+                Open Full Project Backlog ›
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* TAB CONTENT 3: TEAM PULSE */}
+        {activeTab === 'team' && (
+          <View style={styles.teamTabContainer}>
+            <View style={styles.teamSummaryHeader}>
+              <Text style={styles.summaryTitle}>Live Team Availability</Text>
+              <Text style={styles.summarySubtitle}>
+                2 members online • Synchronized with workspace
+              </Text>
+            </View>
+
+            <View style={styles.teamListGroup}>
+              {TEAM_MEMBERS.map(member => (
+                <TouchableOpacity
+                  key={member.id}
+                  style={styles.teamCard}
+                  activeOpacity={0.8}
+                  onPress={() =>
+                    navigate('ChatDetail', {
+                      id: member.id,
+                      name: member.name,
+                      avatar: member.initials,
+                      online: member.online,
+                    })
+                  }
+                >
+                  <View style={styles.teamAvatarBox}>
+                    <View style={styles.teamAvatarCore}>
+                      <Text style={styles.teamAvatarInitials}>
+                        {member.initials}
+                      </Text>
+                    </View>
+                    {member.online && <View style={styles.onlineDotGreen} />}
+                  </View>
+
+                  <View style={styles.teamInfoCol}>
+                    <View style={styles.teamNameRow}>
+                      <Text style={styles.teamMemberName}>{member.name}</Text>
+                      <Text style={styles.teamMemberRole}>{member.role}</Text>
+                    </View>
+                    <Text style={styles.teamMemberStatus} numberOfLines={1}>
+                      {member.status}
+                    </Text>
+                  </View>
+
+                  <View style={styles.chatActionBtn}>
+                    <Text style={styles.chatActionBtnText}>Chat ›</Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <TouchableOpacity
+              style={styles.openMessagesBtn}
+              activeOpacity={0.85}
+              onPress={() => navigate('Messages')}
+            >
+              <Text style={styles.openMessagesText}>
+                Go to Team Channels ›
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </ScrollView>
     </View>
   );
@@ -625,12 +842,12 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 20,
   },
-  // Header
+  // Top Header
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 16,
   },
   profileMeta: {
     flexDirection: 'row',
@@ -714,11 +931,33 @@ const styles = StyleSheet.create({
   headerRightActions: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 8,
+  },
+  headerAIPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#EEF2FF',
+    borderWidth: 1,
+    borderColor: '#C7D2FE',
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: 12,
+    gap: 5,
+  },
+  headerAIGlyph: {
+    fontSize: 12,
+    color: '#4F46E5',
+    fontWeight: '900',
+  },
+  headerAIText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#4F46E5',
   },
   iconActionButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#E2E8F0',
@@ -731,10 +970,9 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
-  // Vector Bell Icon
   vectorBellStem: {
     position: 'absolute',
-    top: 10,
+    top: 9,
     width: 3,
     height: 3,
     borderRadius: 1.5,
@@ -775,7 +1013,38 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#FFFFFF',
   },
-  // Search Bar
+  // Segmented Tab Switcher
+  segmentedContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#F1F5F9',
+    borderRadius: 12,
+    padding: 3,
+    marginBottom: 16,
+  },
+  segmentTab: {
+    flex: 1,
+    paddingVertical: 8,
+    alignItems: 'center',
+    borderRadius: 10,
+  },
+  segmentTabActive: {
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  segmentTabText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#64748B',
+  },
+  segmentTabTextActive: {
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  // Command Search Bar
   searchSection: {
     marginBottom: 20,
   },
@@ -800,7 +1069,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.12,
     shadowRadius: 8,
   },
-  // Vector Search Glyph
   searchIconGlyph: {
     width: 18,
     height: 18,
@@ -857,7 +1125,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#64748B',
   },
-  // Filter Chips
   filterChipScroll: {
     paddingTop: 12,
     gap: 8,
@@ -902,12 +1169,12 @@ const styles = StyleSheet.create({
   filterChipCountTextActive: {
     color: '#FFFFFF',
   },
-  // Hero Executive Card
-  heroExecutiveCard: {
+  // Hero Command Card
+  heroCommandCard: {
     backgroundColor: '#0F172A',
     borderRadius: 20,
     padding: 20,
-    marginBottom: 24,
+    marginBottom: 20,
     position: 'relative',
     overflow: 'hidden',
     shadowColor: '#0F172A',
@@ -918,18 +1185,18 @@ const styles = StyleSheet.create({
   },
   heroAuraBackdrop: {
     position: 'absolute',
-    top: -40,
-    right: -40,
-    width: 180,
-    height: 180,
-    borderRadius: 90,
+    top: -50,
+    right: -50,
+    width: 200,
+    height: 200,
+    borderRadius: 100,
     backgroundColor: 'rgba(99, 102, 241, 0.25)',
   },
   heroTopMeta: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 14,
+    marginBottom: 16,
   },
   heroLivePill: {
     flexDirection: 'row',
@@ -952,338 +1219,287 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
     color: '#E2E8F0',
   },
-  heroTimeRemainingPill: {
+  heroDaysAheadPill: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#38BDF8',
+    letterSpacing: 0.8,
     backgroundColor: 'rgba(56, 189, 248, 0.12)',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,
   },
-  heroTimeText: {
-    fontSize: 9,
+  heroMetricsCluster: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    marginBottom: 18,
+  },
+  heroGaugeCircle: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    borderWidth: 4,
+    borderColor: '#6366F1',
+    backgroundColor: 'rgba(99, 102, 241, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  heroGaugePercent: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    letterSpacing: -0.5,
+  },
+  heroGaugeLabel: {
+    fontSize: 8,
     fontWeight: '800',
-    color: '#38BDF8',
+    color: '#818CF8',
     letterSpacing: 0.8,
+  },
+  heroTitlesContainer: {
+    flex: 1,
   },
   heroMainTitle: {
     fontSize: 20,
     fontWeight: '800',
     color: '#FFFFFF',
     letterSpacing: -0.4,
-    marginBottom: 6,
+    marginBottom: 4,
   },
   heroSubtitleText: {
-    fontSize: 13,
-    lineHeight: 18,
+    fontSize: 12,
+    lineHeight: 17,
     color: '#94A3B8',
-    marginBottom: 16,
-  },
-  heroProgressSection: {
-    marginBottom: 18,
   },
   segmentedTrack: {
     flexDirection: 'row',
-    height: 6,
+    height: 5,
     gap: 4,
-    marginBottom: 8,
+    marginBottom: 16,
   },
-  segmentQuarterActive: {
+  segmentActive: {
     flex: 1,
     backgroundColor: '#6366F1',
-    borderRadius: 3,
+    borderRadius: 2.5,
   },
-  segmentQuarterInactive: {
+  segmentInactive: {
     flex: 1,
     backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    borderRadius: 3,
-  },
-  heroProgressLabels: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  heroPercentText: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: '#F8FAFC',
-  },
-  heroStageText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#64748B',
+    borderRadius: 2.5,
   },
   heroActionFooter: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingTop: 14,
+    justifyContent: 'flex-end',
+    gap: 8,
+    paddingTop: 12,
     borderTopWidth: 1,
     borderTopColor: 'rgba(255, 255, 255, 0.08)',
   },
-  heroTeamAvatarStack: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  heroActionPill: {
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
   },
-  miniStackAvatar: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#0F172A',
-    marginLeft: -6,
+  heroActionPillText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#E2E8F0',
   },
-  stack1: {
+  heroActionPillHighlight: {
     backgroundColor: '#4F46E5',
-    marginLeft: 0,
   },
-  stack2: {
-    backgroundColor: '#06B6D4',
-  },
-  stack3: {
-    backgroundColor: '#F59E0B',
-  },
-  stack4: {
-    backgroundColor: '#334155',
-  },
-  miniStackText: {
-    fontSize: 9,
+  heroActionHighlightText: {
+    fontSize: 11,
     fontWeight: '800',
     color: '#FFFFFF',
   },
-  heroCtaPill: {
+  // Launchpad Grid (4 Shortcuts)
+  launchpadGrid: {
     flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 12,
-    gap: 6,
+    gap: 10,
+    marginBottom: 20,
   },
-  heroCtaText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#0F172A',
-  },
-  heroCtaArrow: {
-    fontSize: 13,
-    fontWeight: '900',
-    color: '#0F172A',
-  },
-  // Bento Section
-  bentoSectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  bentoSectionTitle: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#0F172A',
-    letterSpacing: -0.2,
-  },
-  bentoLinkText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#4F46E5',
-  },
-  bentoGrid: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 12,
-  },
-  bentoCardHalf: {
+  launchpadCard: {
     flex: 1,
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
-    padding: 16,
+    padding: 12,
+    alignItems: 'center',
     borderWidth: 1,
     borderColor: '#E2E8F0',
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.03,
-    shadowRadius: 6,
+    shadowRadius: 4,
     elevation: 2,
   },
-  bentoHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  launchpadIconBox: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 8,
   },
-  bentoMicroCategory: {
-    fontSize: 9,
-    fontWeight: '800',
-    letterSpacing: 1.2,
-    color: '#64748B',
+  iconBoxBlue: {
+    backgroundColor: '#EFF6FF',
   },
-  bentoLiveDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#6366F1',
-  },
-  dotCyan: {
-    backgroundColor: '#06B6D4',
-  },
-  bentoBigMetric: {
-    fontSize: 20,
-    fontWeight: '900',
-    color: '#0F172A',
-    letterSpacing: -0.5,
-    marginBottom: 8,
-  },
-  bentoChartContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    height: 20,
-    gap: 4,
-    marginBottom: 6,
-  },
-  bentoBar: {
-    flex: 1,
-    borderRadius: 2,
-  },
-  bBar1: {
-    height: 8,
+  iconBoxIndigo: {
     backgroundColor: '#EEF2FF',
   },
-  bBar2: {
+  iconBoxCyan: {
+    backgroundColor: '#ECFEFF',
+  },
+  iconBoxPurple: {
+    backgroundColor: '#F5F3FF',
+  },
+  vectorFolderIcon: {
+    width: 16,
     height: 12,
-    backgroundColor: '#C7D2FE',
+    borderRadius: 2,
+    backgroundColor: '#3B82F6',
   },
-  bBar3: {
-    height: 15,
-    backgroundColor: '#818CF8',
-  },
-  bBar4: {
-    height: 18,
-    backgroundColor: '#6366F1',
-  },
-  bBar5: {
-    height: 20,
-    backgroundColor: '#4F46E5',
-  },
-  pipelineDotRow: {
+  vectorChartIcon: {
     flexDirection: 'row',
-    alignItems: 'center',
-    height: 20,
-    gap: 6,
-    marginBottom: 6,
+    alignItems: 'flex-end',
+    gap: 2,
+    height: 14,
   },
-  pipelineDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+  vBar1: {
+    width: 3,
+    height: 7,
+    backgroundColor: '#6366F1',
+    borderRadius: 1,
   },
-  pipeComplete: {
-    backgroundColor: '#10B981',
+  vBar2: {
+    width: 3,
+    height: 11,
+    backgroundColor: '#4F46E5',
+    borderRadius: 1,
   },
-  pipeActive: {
+  vBar3: {
+    width: 3,
+    height: 14,
+    backgroundColor: '#4338CA',
+    borderRadius: 1,
+  },
+  vectorChatIcon: {
+    width: 15,
+    height: 12,
+    borderRadius: 4,
     backgroundColor: '#06B6D4',
   },
-  pipePending: {
-    backgroundColor: '#E2E8F0',
+  vectorAIGlyph: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#8B5CF6',
   },
-  bentoSubText: {
+  launchpadTitle: {
     fontSize: 11,
+    fontWeight: '800',
+    color: '#0F172A',
+    marginBottom: 2,
+  },
+  launchpadSub: {
+    fontSize: 9,
     fontWeight: '600',
     color: '#64748B',
   },
-  // Bento Card 3: Nova Insight
-  bentoInsightCard: {
+  // Nova Copilot Briefing Card
+  copilotBriefingCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
     borderColor: '#E2E8F0',
-    marginBottom: 24,
+    marginBottom: 22,
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.03,
     shadowRadius: 6,
     elevation: 2,
   },
-  insightHeaderRow: {
+  copilotHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 8,
   },
-  insightBadge: {
+  copilotBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
   },
-  insightGlyph: {
+  copilotGlyph: {
     fontSize: 12,
     color: '#6366F1',
     fontWeight: '900',
   },
-  insightBadgeText: {
+  copilotBadgeText: {
     fontSize: 10,
     fontWeight: '800',
     color: '#4F46E5',
     letterSpacing: 1.2,
   },
-  insightTime: {
+  copilotTimeText: {
     fontSize: 10,
     fontWeight: '600',
     color: '#94A3B8',
   },
-  insightBodyText: {
+  copilotBodyText: {
     fontSize: 13,
     lineHeight: 18,
     color: '#334155',
     fontWeight: '500',
-    marginBottom: 12,
+    marginBottom: 10,
   },
-  insightActionRow: {
+  copilotActionRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
   },
-  insightActionText: {
+  copilotActionText: {
     fontSize: 12,
     fontWeight: '700',
     color: '#4F46E5',
   },
-  insightActionChevron: {
-    fontSize: 14,
+  copilotActionChevron: {
+    fontSize: 13,
     fontWeight: '800',
     color: '#4F46E5',
   },
-  // Active Workstreams
-  workstreamSectionHeader: {
+  // Section Header
+  sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 14,
+    marginBottom: 12,
   },
-  workstreamHeaderLeft: {
+  sectionHeaderLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
   },
-  workstreamSectionTitle: {
+  sectionTitle: {
     fontSize: 16,
     fontWeight: '800',
     color: '#0F172A',
     letterSpacing: -0.2,
   },
-  workstreamBadgeCount: {
+  badgeCountPill: {
     backgroundColor: '#EEF2FF',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 10,
   },
-  workstreamBadgeText: {
+  badgeCountText: {
     fontSize: 11,
     fontWeight: '800',
     color: '#4F46E5',
   },
-  viewAllText: {
+  sectionActionText: {
     fontSize: 13,
     fontWeight: '700',
     color: '#4F46E5',
@@ -1377,84 +1593,237 @@ const styles = StyleSheet.create({
     color: '#94A3B8',
     fontWeight: '500',
   },
-  // Search Results State
-  searchResultsSection: {
-    marginTop: 8,
+  // TAB 2: Tasks Checklist
+  tasksTabContainer: {
+    gap: 14,
   },
-  searchResultsHeader: {
+  checklistSummaryBox: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 14,
-  },
-  searchResultsTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#0F172A',
-  },
-  resultsList: {
-    gap: 12,
-  },
-  emptyResultsCard: {
-    padding: 32,
-    alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
     borderWidth: 1,
     borderColor: '#E2E8F0',
+    borderRadius: 16,
+    padding: 16,
   },
-  emptyIconCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#F1F5F9',
+  summaryTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#0F172A',
+    marginBottom: 2,
+  },
+  summarySubtitle: {
+    fontSize: 12,
+    color: '#64748B',
+  },
+  summaryPercentBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#EEF2FF',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 14,
-    position: 'relative',
   },
-  searchCircleLarge: {
+  summaryPercentText: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#4F46E5',
+  },
+  tasksListGroup: {
+    gap: 10,
+  },
+  taskItemCard: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 14,
+    padding: 14,
+    gap: 12,
+  },
+  taskItemCardDone: {
+    backgroundColor: '#F8FAFC',
+    borderColor: '#E2E8F0',
+    opacity: 0.7,
+  },
+  taskCheckbox: {
+    width: 22,
+    height: 22,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: '#CBD5E1',
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 2,
+  },
+  taskCheckboxActive: {
+    backgroundColor: '#10B981',
+    borderColor: '#10B981',
+  },
+  checkmarkGlyph: {
+    fontSize: 13,
+    fontWeight: '900',
+    color: '#FFFFFF',
+  },
+  taskInfoCol: {
+    flex: 1,
+  },
+  taskTitleText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#0F172A',
+    lineHeight: 19,
+    marginBottom: 6,
+  },
+  taskTitleTextDone: {
+    color: '#94A3B8',
+    textDecorationLine: 'line-through',
+  },
+  taskMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  taskPriorityPill: {
+    backgroundColor: '#F1F5F9',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  taskPriorityText: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  taskDueText: {
+    fontSize: 11,
+    color: '#64748B',
+    fontWeight: '600',
+  },
+  taskAssigneeBadge: {
     width: 20,
     height: 20,
     borderRadius: 10,
+    backgroundColor: '#EEF2FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  taskAssigneeText: {
+    fontSize: 8,
+    fontWeight: '800',
+    color: '#4F46E5',
+  },
+  openAllProjectsBtn: {
+    backgroundColor: '#0F172A',
+    borderRadius: 14,
+    paddingVertical: 14,
+    alignItems: 'center',
+    marginTop: 6,
+  },
+  openAllProjectsText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  // TAB 3: Team Pulse
+  teamTabContainer: {
+    gap: 14,
+  },
+  teamSummaryHeader: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 16,
+    padding: 16,
+  },
+  teamListGroup: {
+    gap: 10,
+  },
+  teamCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 14,
+    padding: 14,
+    gap: 12,
+  },
+  teamAvatarBox: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: '#EEF2FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  teamAvatarCore: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  teamAvatarInitials: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#4F46E5',
+  },
+  onlineDotGreen: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#10B981',
     borderWidth: 2,
-    borderColor: '#94A3B8',
-    position: 'absolute',
-    top: 10,
-    left: 10,
+    borderColor: '#FFFFFF',
   },
-  searchHandleLarge: {
-    width: 8,
-    height: 3,
-    backgroundColor: '#94A3B8',
-    borderRadius: 1.5,
-    position: 'absolute',
-    bottom: 12,
-    right: 12,
-    transform: [{ rotate: '45deg' }],
+  teamInfoCol: {
+    flex: 1,
   },
-  emptyTitle: {
-    fontSize: 15,
+  teamNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 2,
+  },
+  teamMemberName: {
+    fontSize: 14,
     fontWeight: '700',
     color: '#0F172A',
-    marginBottom: 6,
   },
-  emptySubtitle: {
-    fontSize: 13,
+  teamMemberRole: {
+    fontSize: 10,
     color: '#64748B',
-    textAlign: 'center',
-    lineHeight: 18,
-    marginBottom: 18,
-    maxWidth: 260,
+    fontWeight: '600',
   },
-  resetSearchBtn: {
-    backgroundColor: '#0F172A',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 10,
-  },
-  resetSearchBtnText: {
+  teamMemberStatus: {
     fontSize: 12,
+    color: '#94A3B8',
+  },
+  chatActionBtn: {
+    backgroundColor: '#F1F5F9',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  chatActionBtnText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#4F46E5',
+  },
+  openMessagesBtn: {
+    backgroundColor: '#0F172A',
+    borderRadius: 14,
+    paddingVertical: 14,
+    alignItems: 'center',
+    marginTop: 6,
+  },
+  openMessagesText: {
+    fontSize: 13,
     fontWeight: '700',
     color: '#FFFFFF',
   },
