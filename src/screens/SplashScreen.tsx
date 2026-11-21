@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import {
+  ActivityIndicator,
   Animated,
   Easing,
   StatusBar,
@@ -19,18 +20,15 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
   const contentScale = useRef(new Animated.Value(0.92)).current;
   const contentOpacity = useRef(new Animated.Value(0)).current;
 
-  // Subtle logo float
+  // Subtle logo entrance
   const logoTranslateY = useRef(new Animated.Value(12)).current;
-
-  // Pulse for loading indicator
-  const pulseAnim = useRef(new Animated.Value(0.4)).current;
 
   useEffect(() => {
     // 1. Entrance animation
     Animated.parallel([
       Animated.timing(contentOpacity, {
         toValue: 1,
-        duration: 500,
+        duration: 450,
         useNativeDriver: true,
       }),
       Animated.spring(contentScale, {
@@ -41,38 +39,18 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
       }),
       Animated.timing(logoTranslateY, {
         toValue: 0,
-        duration: 500,
+        duration: 450,
         easing: Easing.out(Easing.cubic),
         useNativeDriver: true,
       }),
     ]).start();
 
-    // 2. Continuous subtle pulse on loading pill
-    const pulseLoop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 700,
-          easing: Easing.inOut(Easing.quad),
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim, {
-          toValue: 0.3,
-          duration: 700,
-          easing: Easing.inOut(Easing.quad),
-          useNativeDriver: true,
-        }),
-      ]),
-    );
-    pulseLoop.start();
-
-    // 3. Auto dismiss after 1.8 seconds
+    // 2. Auto dismiss after 2.0 seconds
     const exitTimer = setTimeout(() => {
       handleExit();
-    }, 1800);
+    }, 2000);
 
     return () => {
-      pulseLoop.stop();
       clearTimeout(exitTimer);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -125,11 +103,10 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
             <Text style={styles.brandSubtitle}>WORKSPACE PLATFORM</Text>
           </View>
 
-          {/* Minimal Loading Indicator */}
-          <View style={styles.indicatorContainer}>
-            <Animated.View
-              style={[styles.indicatorPill, { opacity: pulseAnim }]}
-            />
+          {/* Clean Native Loading Spinner */}
+          <View style={styles.loaderContainer}>
+            <ActivityIndicator size="small" color="#FFFFFF" />
+            <Text style={styles.loadingText}>Loading workspace...</Text>
           </View>
         </Animated.View>
 
@@ -218,17 +195,16 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
-  indicatorContainer: {
+  loaderContainer: {
     marginTop: 36,
-    height: 20,
-    justifyContent: 'center',
     alignItems: 'center',
+    gap: 10,
   },
-  indicatorPill: {
-    width: 32,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+  loadingText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.85)',
+    letterSpacing: 0.6,
   },
   footerContainer: {
     alignItems: 'center',
