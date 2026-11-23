@@ -23,7 +23,6 @@ export const LoginScreen: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [isFocusedEmail, setIsFocusedEmail] = useState(false);
   const [isFocusedPassword, setIsFocusedPassword] = useState(false);
@@ -31,7 +30,7 @@ export const LoginScreen: React.FC = () => {
   const handleLogin = async () => {
     setErrorMessage('');
     if (!email.trim()) {
-      setErrorMessage('Please enter your work email address.');
+      setErrorMessage('Please enter your email address.');
       return;
     }
     if (!password) {
@@ -45,20 +44,24 @@ export const LoginScreen: React.FC = () => {
         resetTo('Home');
       }
     } catch {
-      setErrorMessage('Authentication failed. Please verify your credentials.');
+      setErrorMessage('Invalid email or password. Please try again.');
     }
   };
 
-  const fillDemoCredentials = () => {
+  const handleDemoLogin = async () => {
     setEmail('john.doe@company.io');
     setPassword('Workspace2026!');
     setErrorMessage('');
+    const success = await login('john.doe@company.io', 'Workspace2026!');
+    if (success) {
+      resetTo('Home');
+    }
   };
 
   const topPadding =
     Platform.OS === 'android'
-      ? Math.max(insets.top, StatusBar.currentHeight || 0) + 16
-      : insets.top + 16;
+      ? Math.max(insets.top, StatusBar.currentHeight || 0) + 24
+      : insets.top + 24;
 
   return (
     <KeyboardAvoidingView
@@ -79,54 +82,45 @@ export const LoginScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Top Brand Emblem */}
+        {/* Top Minimalist Brand Header */}
         <View style={styles.brandHeader}>
-          <View style={styles.brandEmblemBox}>
-            <Text style={styles.brandEmblemGlyph}>◈</Text>
+          <View style={styles.brandBadge}>
+            <View style={styles.emblemDiamond} />
+            <View style={styles.emblemCore} />
           </View>
-          <View style={styles.brandTitleRow}>
-            <Text style={styles.brandTitleMain}>MY</Text>
-            <Text style={styles.brandTitleAccent}>APP</Text>
-          </View>
-          <Text style={styles.brandTagline}>ENTERPRISE WORKSPACE OS</Text>
+          <Text style={styles.brandTitle}>APEX</Text>
+          <Text style={styles.brandSubtitle}>WORKSPACE PLATFORM</Text>
         </View>
 
-        {/* Welcome Section */}
+        {/* Welcome Text */}
         <View style={styles.welcomeSection}>
-          <Text style={styles.welcomeTitle}>Sign in to your account</Text>
+          <Text style={styles.welcomeTitle}>Welcome back</Text>
           <Text style={styles.welcomeSubtitle}>
-            Access your team projects, matrices, and AI intelligence
+            Sign in to access your projects and team hub
           </Text>
         </View>
 
-        {/* Error Notice */}
-        {errorMessage ? (
-          <View style={styles.errorBanner}>
-            <View style={styles.errorIndicator} />
-            <Text style={styles.errorBannerText}>{errorMessage}</Text>
-          </View>
-        ) : null}
+        {/* Elevated Form Card */}
+        <View style={styles.cardContainer}>
+          {/* Error Notice */}
+          {errorMessage ? (
+            <View style={styles.errorBox}>
+              <Text style={styles.errorText}>{errorMessage}</Text>
+            </View>
+          ) : null}
 
-        {/* Input Fields */}
-        <View style={styles.formContainer}>
-          {/* Email Input */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Work Email</Text>
+          {/* Email Field */}
+          <View style={styles.fieldGroup}>
+            <Text style={styles.fieldLabel}>Email</Text>
             <View
               style={[
                 styles.inputWrapper,
                 isFocusedEmail && styles.inputWrapperFocused,
               ]}
             >
-              {/* Mail Icon Glyph */}
-              <View style={styles.inputIconBox}>
-                <View style={styles.vectorMailOutline}>
-                  <View style={styles.vectorMailFlap} />
-                </View>
-              </View>
               <TextInput
                 style={styles.textInput}
-                placeholder="name@company.io"
+                placeholder="name@company.com"
                 placeholderTextColor="#94A3B8"
                 value={email}
                 onChangeText={text => {
@@ -144,35 +138,29 @@ export const LoginScreen: React.FC = () => {
             </View>
           </View>
 
-          {/* Password Input */}
-          <View style={styles.inputGroup}>
-            <View style={styles.passwordLabelRow}>
-              <Text style={styles.inputLabel}>Password</Text>
+          {/* Password Field */}
+          <View style={styles.fieldGroup}>
+            <View style={styles.passwordHeaderRow}>
+              <Text style={styles.fieldLabel}>Password</Text>
               <TouchableOpacity
                 onPress={() =>
-                  setErrorMessage(
-                    'Password reset instructions sent to your email.',
-                  )
+                  setErrorMessage('Password reset link sent to your email.')
                 }
                 activeOpacity={0.7}
               >
-                <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+                <Text style={styles.forgotText}>Forgot password?</Text>
               </TouchableOpacity>
             </View>
+
             <View
               style={[
                 styles.inputWrapper,
                 isFocusedPassword && styles.inputWrapperFocused,
               ]}
             >
-              {/* Lock Icon Glyph */}
-              <View style={styles.inputIconBox}>
-                <View style={styles.vectorLockShackle} />
-                <View style={styles.vectorLockBody} />
-              </View>
               <TextInput
                 style={styles.textInput}
-                placeholder="••••••••••••"
+                placeholder="Enter your password"
                 placeholderTextColor="#94A3B8"
                 value={password}
                 onChangeText={text => {
@@ -187,34 +175,17 @@ export const LoginScreen: React.FC = () => {
                 onBlur={() => setIsFocusedPassword(false)}
               />
               <TouchableOpacity
-                style={styles.eyeToggleButton}
+                style={styles.toggleVisibilityBtn}
                 onPress={() => setShowPassword(prev => !prev)}
                 activeOpacity={0.7}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
-                <Text style={styles.eyeToggleText}>
+                <Text style={styles.toggleVisibilityText}>
                   {showPassword ? 'Hide' : 'Show'}
                 </Text>
               </TouchableOpacity>
             </View>
           </View>
-
-          {/* Remember Me Checkbox */}
-          <TouchableOpacity
-            style={styles.rememberRow}
-            activeOpacity={0.8}
-            onPress={() => setRememberMe(prev => !prev)}
-          >
-            <View
-              style={[
-                styles.customCheckbox,
-                rememberMe && styles.customCheckboxActive,
-              ]}
-            >
-              {rememberMe && <Text style={styles.checkmarkGlyph}>✓</Text>}
-            </View>
-            <Text style={styles.rememberText}>Keep me signed in</Text>
-          </TouchableOpacity>
 
           {/* Primary Sign In Button */}
           <TouchableOpacity
@@ -226,76 +197,25 @@ export const LoginScreen: React.FC = () => {
             {isLoading ? (
               <ActivityIndicator color="#FFFFFF" size="small" />
             ) : (
-              <Text style={styles.primaryButtonText}>Sign In to Workspace</Text>
+              <Text style={styles.primaryButtonText}>Sign In</Text>
             )}
           </TouchableOpacity>
 
-          {/* 1-Tap Demo Credentials Pill */}
+          {/* Quick Demo Login Option */}
           <TouchableOpacity
-            style={styles.demoFillPill}
-            activeOpacity={0.8}
-            onPress={fillDemoCredentials}
+            style={styles.demoButton}
+            activeOpacity={0.75}
+            onPress={handleDemoLogin}
+            disabled={isLoading}
           >
-            <View style={styles.demoDot} />
-            <Text style={styles.demoFillText}>
-              1-Tap Demo Credentials (john.doe@company.io)
-            </Text>
+            <Text style={styles.demoButtonText}>Quick Demo Sign In →</Text>
           </TouchableOpacity>
-
-          {/* Divider */}
-          <View style={styles.dividerRow}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerLabel}>OR CONTINUE WITH</Text>
-            <View style={styles.dividerLine} />
-          </View>
-
-          {/* SSO Buttons */}
-          <View style={styles.ssoRow}>
-            {/* Google Workspace SSO */}
-            <TouchableOpacity
-              style={styles.ssoButton}
-              activeOpacity={0.7}
-              onPress={async () => {
-                await login('john.doe@company.io', 'GoogleSSO');
-                resetTo('Home');
-              }}
-            >
-              <Text style={styles.ssoGlyph}>G</Text>
-              <Text style={styles.ssoButtonText}>Google</Text>
-            </TouchableOpacity>
-
-            {/* Apple ID */}
-            <TouchableOpacity
-              style={styles.ssoButton}
-              activeOpacity={0.7}
-              onPress={async () => {
-                await login('john.doe@company.io', 'AppleSSO');
-                resetTo('Home');
-              }}
-            >
-              <Text style={styles.ssoGlyph}></Text>
-              <Text style={styles.ssoButtonText}>Apple</Text>
-            </TouchableOpacity>
-
-            {/* Enterprise SAML / SSO */}
-            <TouchableOpacity
-              style={styles.ssoButton}
-              activeOpacity={0.7}
-              onPress={async () => {
-                await login('john.doe@company.io', 'EnterpriseSAML');
-                resetTo('Home');
-              }}
-            >
-              <Text style={styles.ssoGlyph}>◈</Text>
-              <Text style={styles.ssoButtonText}>SAML</Text>
-            </TouchableOpacity>
-          </View>
         </View>
 
-        {/* Footer Link to Register */}
+        {/* Bottom Switch to Register */}
         <View style={styles.footerRow}>
           <Text style={styles.footerPromptText}>
-            Don&rsquo;t have a workspace account?
+            Don&rsquo;t have an account?{' '}
           </Text>
           <TouchableOpacity
             onPress={() => navigate('Register')}
@@ -319,326 +239,228 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 24,
-    justifyContent: 'center',
   },
+
   // Brand Header
   brandHeader: {
     alignItems: 'center',
     marginBottom: 28,
   },
-  brandEmblemBox: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
-    backgroundColor: '#0F172A',
+  brandBadge: {
+    width: 60,
+    height: 60,
+    borderRadius: 18,
+    backgroundColor: '#4F46E5',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 10,
-    shadowColor: '#4F46E5',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 4,
+    marginBottom: 12,
+    position: 'relative',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#4F46E5',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.25,
+        shadowRadius: 10,
+      },
+      android: {
+        elevation: 6,
+      },
+    }),
   },
-  brandEmblemGlyph: {
+  emblemDiamond: {
+    width: 24,
+    height: 24,
+    borderRadius: 5,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    transform: [{ rotate: '45deg' }],
+  },
+  emblemCore: {
+    position: 'absolute',
+    width: 12,
+    height: 12,
+    borderRadius: 3,
+    backgroundColor: '#FFFFFF',
+    transform: [{ rotate: '45deg' }],
+  },
+  brandTitle: {
     fontSize: 22,
-    color: '#818CF8',
-    fontWeight: '800',
-  },
-  brandTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  brandTitleMain: {
-    fontSize: 24,
     fontWeight: '900',
-    letterSpacing: 4,
     color: '#0F172A',
-  },
-  brandTitleAccent: {
-    fontSize: 24,
-    fontWeight: '300',
     letterSpacing: 4,
-    color: '#4F46E5',
   },
-  brandTagline: {
+  brandSubtitle: {
     fontSize: 10,
     fontWeight: '700',
-    letterSpacing: 1.5,
     color: '#64748B',
-    marginTop: 4,
+    letterSpacing: 1.5,
+    marginTop: 2,
+    textTransform: 'uppercase',
   },
-  // Welcome Text
+
+  // Welcome Section
   welcomeSection: {
+    alignItems: 'center',
     marginBottom: 24,
   },
   welcomeTitle: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: '800',
     color: '#0F172A',
-    letterSpacing: -0.4,
+    letterSpacing: -0.5,
     marginBottom: 6,
   },
   welcomeSubtitle: {
     fontSize: 14,
     color: '#64748B',
+    textAlign: 'center',
     lineHeight: 20,
   },
-  // Error Banner
-  errorBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FEE2E2',
+
+  // Card Container
+  cardContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    padding: 24,
     borderWidth: 1,
-    borderColor: '#FECACA',
+    borderColor: '#E2E8F0',
+    gap: 18,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#0F172A',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.05,
+        shadowRadius: 12,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
+  },
+
+  // Error Notice
+  errorBox: {
+    backgroundColor: '#FEF2F2',
+    borderWidth: 1,
+    borderColor: '#FEE2E2',
     borderRadius: 12,
-    paddingHorizontal: 14,
     paddingVertical: 10,
-    marginBottom: 18,
-    gap: 10,
+    paddingHorizontal: 14,
   },
-  errorIndicator: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#EF4444',
-  },
-  errorBannerText: {
+  errorText: {
+    color: '#EF4444',
     fontSize: 13,
     fontWeight: '600',
-    color: '#B91C1C',
-    flex: 1,
+    lineHeight: 18,
   },
-  // Form Container
-  formContainer: {
-    gap: 18,
-    marginBottom: 28,
+
+  // Field Group
+  fieldGroup: {
+    gap: 8,
   },
-  inputGroup: {
-    gap: 6,
-  },
-  inputLabel: {
-    fontSize: 12,
+  fieldLabel: {
+    fontSize: 13,
     fontWeight: '700',
-    letterSpacing: 0.5,
     color: '#334155',
   },
-  passwordLabelRow: {
+  passwordHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  forgotPasswordText: {
+  forgotText: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '600',
     color: '#4F46E5',
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F8FAFC',
     borderWidth: 1.5,
     borderColor: '#E2E8F0',
     borderRadius: 14,
-    paddingHorizontal: 12,
     height: 50,
+    paddingHorizontal: 16,
   },
   inputWrapperFocused: {
     borderColor: '#4F46E5',
     backgroundColor: '#FFFFFF',
   },
-  inputIconBox: {
-    width: 22,
-    height: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 10,
-  },
-  // Vector Mail Glyph
-  vectorMailOutline: {
-    width: 16,
-    height: 12,
-    borderRadius: 2,
-    borderWidth: 1.5,
-    borderColor: '#64748B',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-  },
-  vectorMailFlap: {
-    width: 8,
-    height: 4,
-    borderBottomLeftRadius: 4,
-    borderBottomRightRadius: 4,
-    backgroundColor: '#64748B',
-  },
-  // Vector Lock Glyph
-  vectorLockShackle: {
-    width: 8,
-    height: 6,
-    borderTopLeftRadius: 4,
-    borderTopRightRadius: 4,
-    borderWidth: 1.5,
-    borderBottomWidth: 0,
-    borderColor: '#64748B',
-    marginBottom: -1,
-  },
-  vectorLockBody: {
-    width: 14,
-    height: 10,
-    borderRadius: 2,
-    backgroundColor: '#64748B',
-  },
   textInput: {
     flex: 1,
+    height: '100%',
     fontSize: 14,
-    fontWeight: '500',
     color: '#0F172A',
-    paddingVertical: 0,
+    fontWeight: '500',
+    padding: 0,
   },
-  eyeToggleButton: {
-    paddingHorizontal: 6,
-    paddingVertical: 4,
+  toggleVisibilityBtn: {
+    paddingLeft: 8,
   },
-  eyeToggleText: {
+  toggleVisibilityText: {
     fontSize: 12,
     fontWeight: '700',
     color: '#64748B',
   },
-  // Remember Me
-  rememberRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  customCheckbox: {
-    width: 18,
-    height: 18,
-    borderRadius: 5,
-    borderWidth: 1.5,
-    borderColor: '#CBD5E1',
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  customCheckboxActive: {
-    backgroundColor: '#4F46E5',
-    borderColor: '#4F46E5',
-  },
-  checkmarkGlyph: {
-    fontSize: 11,
-    fontWeight: '900',
-    color: '#FFFFFF',
-  },
-  rememberText: {
-    fontSize: 13,
-    color: '#475569',
-    fontWeight: '500',
-  },
+
   // Primary Button
   primaryButton: {
-    height: 50,
-    backgroundColor: '#0F172A',
+    backgroundColor: '#4F46E5',
     borderRadius: 14,
+    height: 50,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 3,
+    marginTop: 4,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#4F46E5',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.25,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
   },
   buttonDisabled: {
     opacity: 0.65,
   },
   primaryButtonText: {
+    color: '#FFFFFF',
     fontSize: 15,
     fontWeight: '700',
-    color: '#FFFFFF',
-    letterSpacing: 0.2,
+    letterSpacing: 0.3,
   },
-  // 1-Tap Demo Pill
-  demoFillPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#EEF2FF',
-    borderWidth: 1,
-    borderColor: '#C7D2FE',
-    borderRadius: 10,
-    paddingVertical: 9,
-    paddingHorizontal: 12,
-    gap: 8,
-  },
-  demoDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#4F46E5',
-  },
-  demoFillText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#4F46E5',
-  },
-  // Divider
-  dividerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginVertical: 4,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: '#E2E8F0',
-  },
-  dividerLabel: {
-    fontSize: 10,
-    fontWeight: '700',
-    letterSpacing: 1.5,
-    color: '#94A3B8',
-  },
-  // SSO Row
-  ssoRow: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  ssoButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+
+  // Demo Button
+  demoButton: {
+    backgroundColor: '#F1F5F9',
+    borderRadius: 14,
     height: 44,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    borderRadius: 12,
-    gap: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  ssoGlyph: {
-    fontSize: 14,
-    fontWeight: '900',
-    color: '#0F172A',
-  },
-  ssoButtonText: {
-    fontSize: 12,
+  demoButtonText: {
+    color: '#4F46E5',
+    fontSize: 13,
     fontWeight: '700',
-    color: '#334155',
   },
-  // Footer
+
+  // Footer Row
   footerRow: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 6,
+    marginTop: 28,
   },
   footerPromptText: {
-    fontSize: 13,
+    fontSize: 14,
     color: '#64748B',
   },
   footerActionText: {
-    fontSize: 13,
-    fontWeight: '800',
+    fontSize: 14,
+    fontWeight: '700',
     color: '#4F46E5',
   },
 });
